@@ -20,7 +20,6 @@ export async function createTranscript(
   let allMessages: Message[] = []
   let lastId: string | undefined
 
-  // If limit is -1, fetch all messages
   if (limit === -1) {
     while (true) {
       const fetchOptions: any = { limit: 100 }
@@ -33,10 +32,9 @@ export async function createTranscript(
       lastId = fetchedMessages.last()?.id
     }
   } else {
-    // Fetch up to the specified limit
     while (allMessages.length < limit) {
       const remainingMessages = limit - allMessages.length
-      const fetchLimit = Math.min(remainingMessages, 100) // Discord API max is 100 per request
+      const fetchLimit = Math.min(remainingMessages, 100)
       
       const fetchOptions: any = { limit: fetchLimit }
       if (lastId) fetchOptions.before = lastId
@@ -47,7 +45,6 @@ export async function createTranscript(
       allMessages = [...allMessages, ...fetchedMessages.values()]
       lastId = fetchedMessages.last()?.id
       
-      // Stop if we've reached the limit
       if (allMessages.length >= limit) {
         allMessages = allMessages.slice(0, limit)
         break

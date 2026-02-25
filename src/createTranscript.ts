@@ -20,15 +20,39 @@ export async function createTranscript(
   let allMessages: Message[] = []
   let lastId: string | undefined
 
-  while (true) {
-    const fetchOptions: any = { limit: limit ?? 100 }
-    if (lastId) fetchOptions.before = lastId
+  // If limit is -1, fetch all messages
+  if (limit === -1) {
+    while (true) {
+      const fetchOptions: any = { limit: 100 }
+      if (lastId) fetchOptions.before = lastId
 
-    const fetchedMessages: any = await channel.messages.fetch(fetchOptions)
-    if (!fetchedMessages.size) break
+      const fetchedMessages: any = await channel.messages.fetch(fetchOptions)
+      if (!fetchedMessages.size) break
 
-    allMessages = [...fetchedMessages.values(), ...allMessages]
-    lastId = fetchedMessages.last()?.id
+      allMessages = [...allMessages, ...fetchedMessages.values()]
+      lastId = fetchedMessages.last()?.id
+    }
+  } else {
+    // Fetch up to the specified limit
+    while (allMessages.length < limit) {
+      const remainingMessages = limit - allMessages.length
+      const fetchLimit = Math.min(remainingMessages, 100) // Discord API max is 100 per request
+      
+      const fetchOptions: any = { limit: fetchLimit }
+      if (lastId) fetchOptions.before = lastId
+
+      const fetchedMessages: any = await channel.messages.fetch(fetchOptions)
+      if (!fetchedMessages.size) break
+
+      allMessages = [...allMessages, ...fetchedMessages.values()]
+      lastId = fetchedMessages.last()?.id
+      
+      // Stop if we've reached the limit
+      if (allMessages.length >= limit) {
+        allMessages = allMessages.slice(0, limit)
+        break
+      }
+    }
   }
 
   const formatDate = (date: Date) =>
@@ -38,12 +62,14 @@ export async function createTranscript(
       timeZone: timezone,
     }).format(date)
 
+  const mappedMessages = allMessages.reverse().map((message) => mapMessage(message, formatDate))
+
   const renderData = {
     channelName: channel.name,
     guildName,
     createdAtFull: formatDate(new Date()),
     closedAtFull: formatDate(new Date()),
-    messages: allMessages.reverse().map((message) => mapMessage(message, formatDate)),
+    messages: mappedMessages,
   }
 
   const html = Mustache.render(template, renderData)

@@ -20,7 +20,7 @@ Lightweight, customizable and easy to use.
 ## Installation
 
 ```bash
-npm install kazami-transcripts
+npm install @kazami-devs/transcripts
 ```
 
 ---

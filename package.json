@@ -1,5 +1,5 @@
 {
-  "name": "kazami-transcripts",
+  "name": "@kazami-devs/transcripts",
   "version": "1.0.0",
   "description": "Generate beautiful HTML transcripts from discord.js channels.",
   "main": "dist/index.js",
@@ -12,6 +12,9 @@
   "keywords": ["discord", "discordjs", "transcript", "html"],
   "author": "Camilla Viana",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Kazami-Devs/Kazami-Transcripts.git"

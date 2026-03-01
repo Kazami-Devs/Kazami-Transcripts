@@ -28,7 +28,7 @@ npm install @kazami-devs/transcripts
 ## Basic Usage
 
 ```js
-const { createTranscript } = require('kazami-transcripts')
+const { createTranscript } = require('@kazami-devs/transcripts')
 const { AttachmentBuilder } = require('discord.js')
 
 const transcript = await createTranscript(channel)

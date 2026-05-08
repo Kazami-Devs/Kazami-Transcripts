@@ -1,6 +1,6 @@
 {
   "name": "@kazami-devs/transcripts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Generate beautiful HTML transcripts from discord.js channels.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

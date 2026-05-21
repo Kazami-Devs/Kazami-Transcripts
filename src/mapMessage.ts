@@ -1,61 +1,6 @@
 import type { Embed, Message } from 'discord.js'
 import { MessageType } from 'discord.js'
 
-interface InteractionInfo {
-  commandName: string
-  commandUser: string
-  commandUserAvatar: string
-  commandUserColor: string | null
-}
-
-function getInteractionInfo(message: Message): InteractionInfo | null {
-  if (message.interaction) {
-    const user = message.interaction.user
-    const member = message.guild?.members.cache.get(user.id)
-    const memberColor = member?.displayHexColor
-    return {
-      commandName: message.interaction.commandName,
-      commandUser: user.username,
-      commandUserAvatar: user.displayAvatarURL({ extension: 'png', size: 32 }),
-      commandUserColor:
-        memberColor && memberColor !== '#000000' ? memberColor : null,
-    }
-  }
-
-  const meta = (
-    message as Message & {
-      interactionMetadata?: {
-        name?: string
-        user?: {
-          id: string
-          username: string
-          displayAvatarURL?: (options: object) => string
-        }
-      }
-    }
-  ).interactionMetadata
-
-  if (meta?.user && meta.name) {
-    const user = meta.user
-    const member = message.guild?.members.cache.get(user.id)
-    const memberColor = member?.displayHexColor
-    const avatarUrl =
-      typeof user.displayAvatarURL === 'function'
-        ? user.displayAvatarURL({ extension: 'png', size: 32 })
-        : `https://cdn.discordapp.com/embed/avatars/${Number(user.id) % 5}.png`
-
-    return {
-      commandName: meta.name,
-      commandUser: user.username,
-      commandUserAvatar: avatarUrl,
-      commandUserColor:
-        memberColor && memberColor !== '#000000' ? memberColor : null,
-    }
-  }
-
-  return null
-}
-
 function escapeHtml(text: string): string {
   return text
     .replace(/&/g, '&amp;')
@@ -65,89 +10,14 @@ function escapeHtml(text: string): string {
     .replace(/'/g, '&#039;')
 }
 
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
-}
-
-function getFileExtension(name: string): string {
-  const lastDot = name.lastIndexOf('.')
-  if (lastDot < 0) return 'FILE'
-  const ext = name.slice(lastDot + 1).toUpperCase()
-  return ext.length <= 5 ? ext : 'FILE'
-}
-
-function isImageAttachment(name: string, contentType?: string | null): boolean {
-  if (contentType?.startsWith('image/')) return true
-  return /\.(png|jpe?g|gif|webp|bmp|svg|avif)$/i.test(name)
-}
-
-function isVideoAttachment(name: string, contentType?: string | null): boolean {
-  if (contentType?.startsWith('video/')) return true
-  return /\.(mp4|webm|mov|mkv|avi|m4v)$/i.test(name)
-}
-
-function isAudioAttachment(name: string, contentType?: string | null): boolean {
-  if (contentType?.startsWith('audio/')) return true
-  return /\.(mp3|wav|ogg|flac|m4a|aac|opus)$/i.test(name)
-}
-
-const MARKDOWN_PLACEHOLDER = '\uE000MD'
-
-function formatDiscordEmojis(text: string): string {
-  return text.replace(
-    /&lt;(a)?:([\w~]+):(\d+)&gt;/gi,
-    (_match, animated: string | undefined, name: string, id: string) => {
-      const ext = animated ? 'gif' : 'png'
-      const safeName = escapeHtml(name)
-      return `<img class="dc-emoji" src="https://cdn.discordapp.com/emojis/${id}.${ext}" alt=":${safeName}:" title=":${safeName}:" draggable="false" loading="lazy">`
-    }
-  )
-}
-
-const IMAGE_URL_PATTERN =
-  /https?:\/\/[^\s<>"']+\.(?:png|jpe?g|gif|webp|bmp|avif|svg)(?:\?[^\s<>"']*)?/i
-
-function formatInlineImages(text: string): string {
-  text = text.replace(
-    /!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g,
-    (_match, alt, url) => {
-      const safeAlt = escapeHtml(alt || 'Image')
-      const safeUrl = escapeHtml(url)
-      return `<span class="dc-media dc-media--image dc-media--external"><a href="${safeUrl}" target="_blank" rel="noopener noreferrer"><img src="${safeUrl}" alt="${safeAlt}" loading="lazy" referrerpolicy="no-referrer"></a></span>`
-    }
-  )
-
-  return text.replace(
-    /(?<!href="|src="|">)(https?:\/\/[^\s<>"']+\.(?:png|jpe?g|gif|webp|bmp|avif|svg)(?:\?[^\s<>"']*)?)/gi,
-    (url) => {
-      const safeUrl = escapeHtml(url)
-      return `<span class="dc-media dc-media--image dc-media--external"><a href="${safeUrl}" target="_blank" rel="noopener noreferrer"><img src="${safeUrl}" alt="Image" loading="lazy" referrerpolicy="no-referrer"></a></span>`
-    }
-  )
-}
-
 function formatDiscordMarkdown(text: string): string {
   if (!text) return ''
-
-  const saved: string[] = []
-  const save = (html: string) => {
-    saved.push(html)
-    return `${MARKDOWN_PLACEHOLDER}${saved.length - 1}${MARKDOWN_PLACEHOLDER}`
-  }
-
-  text = text.replace(/```(?:(\w+)\n)?([\s\S]*?)```/g, (_match, _lang, code) =>
-    save(`<pre class="dc-code-block"><code>${code}</code></pre>`)
-  )
-
-  text = text.replace(/`([^`]+?)`/g, (_match, code) =>
-    save(`<code class="dc-code-inline">${code}</code>`)
-  )
-
-  text = formatDiscordEmojis(text)
-  text = formatInlineImages(text)
-
+  
+  text = text.replace(/```(?:(\w+)\n)?([\s\S]*?)```/g, (match, lang, code) => {
+    return `<pre class="dc-code-block"><code>${code}</code></pre>`
+  })
+  
+  text = text.replace(/`([^`]+?)`/g, '<code class="dc-code-inline">$1</code>')
   text = text.replace(/\|\|(.+?)\|\|/g, '<span class="dc-spoiler">$1</span>')
   text = text.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
   text = text.replace(/___(.+?)___/g, '<strong><em>$1</em></strong>')
@@ -167,19 +37,8 @@ function formatDiscordMarkdown(text: string): string {
     return `<span class="dc-timestamp">${date.toLocaleString()}</span>`
   })
   text = text.replace(/\[([^\]]+)]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" class="dc-link" target="_blank" rel="noopener noreferrer">$1</a>')
-  text = text.replace(
-    /(?<!href="|src="|">)(https?:\/\/[^\s<]+)/g,
-    (url) => {
-      if (IMAGE_URL_PATTERN.test(url)) return url
-      return `<a href="${url}" class="dc-link" target="_blank" rel="noopener noreferrer">${url}</a>`
-    }
-  )
-
-  text = text.replace(
-    new RegExp(`${MARKDOWN_PLACEHOLDER}(\\d+)${MARKDOWN_PLACEHOLDER}`, 'g'),
-    (_match, index) => saved[Number(index)] ?? ''
-  )
-
+  text = text.replace(/(?<!href="|src="|">)(https?:\/\/[^\s<]+)/g, '<a href="$1" class="dc-link" target="_blank" rel="noopener noreferrer">$1</a>')
+  
   return text
 }
 
@@ -337,89 +196,34 @@ function mapComponents(components: any[], message: Message): any[] {
   })
 }
 
-export function mapReplyPreview(message: Message) {
-  const snippet = message.content?.trim() ?? ''
-  const hasAttachment = message.attachments.size > 0
-  const hasEmbed = message.embeds.length > 0
-
-  return {
-    author: message.author.username,
-    avatarUrl: message.author.displayAvatarURL({ extension: 'png', size: 32 }),
-    content: snippet ? formatContent(snippet.slice(0, 140), message) : null,
-    hasContent: Boolean(snippet),
-    hasAttachment: !snippet && hasAttachment,
-    hasEmbed: !snippet && !hasAttachment && hasEmbed,
-  }
-}
-
-export function mapMessage(
-  message: Message,
-  formatDate: (date: Date) => string,
-  formatTime: (date: Date) => string
-) {
+export function mapMessage(message: Message, formatDate: (date: Date) => string) {
   const formatEmbedText = (text?: string | null) => (text ? formatContent(text, message) : null)
   const formatEmbedFieldText = (text?: string | null) => (text ? formatContent(text, message) : '')
 
-  const embeds = message.embeds.map((embed: Embed) => {
-    const hasFields = (embed.fields?.length ?? 0) > 0
-    const hasText = Boolean(
-      embed.title ||
-        embed.description ||
-        embed.author?.name ||
-        embed.footer?.text
-    )
-    const embedImage = embed.image?.url ?? null
-    const embedThumbnail = embed.thumbnail?.url ?? null
-    const isImageOnly = Boolean(!hasText && !hasFields && (embedImage || embedThumbnail))
-    const image = embedImage ?? (isImageOnly ? embedThumbnail : null)
-    const thumbnail = isImageOnly ? null : embedThumbnail
+  const embeds = message.embeds.map((embed: Embed) => ({
+    title: formatEmbedText(embed.title),
+    description: formatEmbedText(embed.description),
+    color: embed.color ? `#${embed.color.toString(16).padStart(6, '0')}` : '#7289da',
+    fields:
+      embed.fields?.map((field) => ({
+        name: formatEmbedFieldText(field.name),
+        value: formatEmbedFieldText(field.value),
+        inline: field.inline,
+      })) ?? [],
+    image: embed.image?.url,
+    thumbnail: embed.thumbnail?.url,
+    author: formatEmbedText(embed.author?.name),
+    footer: formatEmbedText(embed.footer?.text),
+    url: embed.url,
+  }))
 
-    return {
-      title: formatEmbedText(embed.title),
-      description: formatEmbedText(embed.description),
-      color: embed.color ? `#${embed.color.toString(16).padStart(6, '0')}` : '#7289da',
-      fields:
-        embed.fields?.map((field) => ({
-          name: formatEmbedFieldText(field.name),
-          value: formatEmbedFieldText(field.value),
-          inline: field.inline,
-        })) ?? [],
-      image,
-      thumbnail,
-      author: formatEmbedText(embed.author?.name),
-      footer: formatEmbedText(embed.footer?.text),
-      url: embed.url,
-      isImageOnly,
-    }
-  })
-
-  const attachments = message.attachments.map((attachment) => {
-    const name = attachment.name ?? 'file'
-    const contentType = attachment.contentType ?? null
-    const isImage = isImageAttachment(name, contentType)
-    const isVideo = isVideoAttachment(name, contentType)
-    const isAudio = isAudioAttachment(name, contentType)
-    const isGif =
-      contentType === 'image/gif' || name.toLowerCase().endsWith('.gif')
-    const isFile = !isImage && !isVideo && !isAudio
-
-    return {
-      name,
-      url: attachment.proxyURL ?? attachment.url,
-      size: attachment.size,
-      sizeFormatted: formatFileSize(attachment.size),
-      extension: getFileExtension(name),
-      width: attachment.width,
-      height: attachment.height,
-      hasDimensions: Boolean(attachment.width && attachment.height),
-      isImage,
-      isVideo,
-      isAudio,
-      isGif,
-      isFile,
-      isSpoiler: attachment.spoiler ?? false,
-    }
-  })
+  const attachments = message.attachments.map((attachment) => ({
+    name: attachment.name,
+    url: attachment.url,
+    isImage: attachment.contentType?.startsWith('image'),
+    isVideo: attachment.contentType?.startsWith('video'),
+    isAudio: attachment.contentType?.startsWith('audio'),
+  }))
 
   const stickers = message.stickers.map((sticker) => ({
     name: sticker.name,
@@ -450,53 +254,22 @@ export function mapMessage(
 
   let processedContent = isOnlyTenorUrl ? null : formatContent(message.content ?? '', message)
 
-  if (processedContent) {
-    const trimmed = message.content?.trim() ?? ''
-    const single = attachments.length === 1 ? attachments[0] : null
-    const imageEmbed = embeds.find((embed) => embed.isImageOnly && embed.image)
-
-    if (
-      single?.isImage &&
-      (trimmed === single.url ||
-        trimmed === `<${single.url}>` ||
-        trimmed === (message.attachments.first()?.url ?? ''))
-    ) {
-      processedContent = null
-    } else if (
-      imageEmbed?.image &&
-      (trimmed === imageEmbed.image || trimmed === `<${imageEmbed.image}>`)
-    ) {
-      processedContent = null
-    }
-  }
-
   const systemMessageText = getSystemMessageText(message)
   const isSystemMessage = systemMessageText !== null
 
-  const memberColor = message.member?.displayHexColor
-  const authorColor =
-    memberColor && memberColor !== '#000000' ? memberColor : null
-
   const isBot = message.author.bot
-  const isApp = Boolean(message.author.bot && message.applicationId)
-  const interaction = getInteractionInfo(message)
-  const isCommand = interaction !== null
-  const commandName = interaction?.commandName ?? null
-  const commandUser = interaction?.commandUser ?? null
-  const commandUserAvatar = interaction?.commandUserAvatar ?? null
-  const commandUserColor = interaction?.commandUserColor ?? null
+  const isCommand = message.interaction !== null
+  const commandName = message.interaction?.commandName ?? null
+  const commandUser = message.interaction?.user?.username ?? null
+  const commandUserAvatar = message.interaction?.user?.displayAvatarURL({ extension: 'png', size: 128 }) ?? null
 
   const components = mapComponents(message.components as any, message)
 
   return {
-    messageId: message.id,
     author: message.author.username,
-    authorColor,
     avatarUrl: message.author.displayAvatarURL({ extension: 'png', size: 128 }),
     content: processedContent,
     timestamp: formatDate(message.createdAt),
-    shortTimestamp: formatTime(message.createdAt),
-    dateKey: message.createdAt.toISOString().slice(0, 10),
     embeds: regularEmbeds,
     attachments,
     stickers,
@@ -506,12 +279,10 @@ export function mapMessage(
     hasStickers: stickers.length > 0,
     hasTenorGifs: tenorGifs.length > 0,
     isBot,
-    isApp,
     isCommand,
     commandName,
     commandUser,
     commandUserAvatar,
-    commandUserColor,
     isSystemMessage,
     systemMessageText,
     components,

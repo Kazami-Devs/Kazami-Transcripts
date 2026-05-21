@@ -6,7 +6,7 @@
   <title>Transcript - {{channelName}}</title>
   <style>
     :root {
-      --dc-base-font: "gg sans", "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --dc-base-font: 'Segoe UI', 'Helvetica Neue', sans-serif;
       --dc-blurple: #5865F2;
       --dc-green: #57F287;
       --dc-red: #ED4245;
@@ -33,8 +33,6 @@
       --dc-mention-color-rgb: 201 205 251;
       --dc-mention-bg-opacity: 30%;
       --dc-msg-bg-hover-opacity: 6%;
-      --dc-shell-border: rgb(255 255 255 / 6%);
-      --dc-shell-separator: rgb(0 0 0 / 22%);
     }
     
     * {
@@ -44,326 +42,53 @@
     }
     
     html, body {
-      background-color: var(--dc-bg-tertiary);
+      background-color: var(--dc-bg-primary);
       font-family: var(--dc-base-font);
       color: var(--dc-color);
       line-height: 1.375;
-      font-size: 16px;
-      height: 100%;
-      overflow: hidden;
+      font-size: 15px;
+      min-height: 100vh;
     }
     
     body {
-      margin: 0;
-      height: 100%;
-    }
-    
-    .app {
-      display: flex;
-      height: 100vh;
-      width: 100%;
-      background: var(--dc-bg-tertiary);
-      overflow: hidden;
-    }
-    
-    .guild-rail {
-      width: 72px;
-      flex-shrink: 0;
-      background: var(--dc-bg-tertiary);
       display: flex;
       flex-direction: column;
-      align-items: center;
-      padding: 12px 0;
-      border-inline-end: 1px solid var(--dc-shell-separator);
-      overflow: hidden;
     }
     
-    .guild-icon-wrap {
-      position: relative;
+    .header {
+      background-color: var(--dc-bg-secondary);
+      padding: 24px 20px;
+      border-bottom: 1px solid var(--dc-bg-tertiary);
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 0 12px;
-      margin-bottom: 8px;
-    }
-    
-    .guild-icon-wrap::before {
-      content: "";
-      position: absolute;
-      inset-inline-start: 0;
-      inline-size: 4px;
-      block-size: 40px;
-      border-radius: 0 4px 4px 0;
-      background: var(--dc-header-primary);
-    }
-    
-    .guild-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 16px;
-      object-fit: cover;
-    }
-    
-    .guild-icon-fallback {
-      width: 48px;
-      height: 48px;
-      border-radius: 16px;
-      background: var(--dc-blurple);
-      color: var(--dc-white);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-      font-weight: 700;
-    }
-    
-    .channel-sidebar {
-      width: 240px;
-      flex-shrink: 0;
-      background: var(--dc-bg-secondary);
-      border-inline-end: 1px solid var(--dc-shell-separator);
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      overflow: hidden;
-    }
-    
-    .channel-sidebar-header {
-      display: flex;
-      align-items: center;
-      min-height: 48px;
-      padding: 0 16px;
-      border-bottom: 1px solid var(--dc-shell-separator);
-      box-shadow: 0 1px 0 rgb(0 0 0 / 10%);
-      color: var(--dc-header-primary);
-      font-size: 0.9375rem;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      flex-shrink: 0;
-    }
-    
-    .channel-sidebar-body {
-      flex: 1;
-      padding: 12px 8px;
-      overflow: visible;
-    }
-    
-    .channel-sidebar-label {
-      color: var(--dc-muted);
-      display: block;
-      font-size: 0.6875rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      padding: 8px 8px 4px;
-      text-transform: uppercase;
-    }
-    
-    .channel-sidebar-item {
-      align-items: center;
-      border-radius: 4px;
-      color: var(--dc-muted);
-      display: flex;
-      gap: 6px;
-      padding: 6px 8px;
-      font-size: 0.9375rem;
-      font-weight: 500;
-    }
-    
-    .channel-sidebar-item--active {
-      background: rgb(255 255 255 / 6%);
-      color: var(--dc-header-primary);
-    }
-    
-    .channel-sidebar-hash {
-      color: var(--dc-muted);
-      font-size: 1.25rem;
-      font-weight: 500;
-      line-height: 1;
-    }
-    
-    .channel-sidebar-item--active .channel-sidebar-hash {
-      color: var(--dc-header-primary);
-    }
-    
-    .channel-sidebar-meta {
-      border-top: 1px solid var(--dc-shell-separator);
-      color: var(--dc-muted);
-      font-size: 0.75rem;
-      line-height: 1.4;
-      padding: 12px 16px;
-      flex-shrink: 0;
-    }
-    
-    .chat-panel {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      background: var(--dc-bg-primary);
-      height: 100%;
-      overflow: hidden;
-    }
-    
-    .channel-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 0 16px;
-      min-height: 48px;
-      border-bottom: 1px solid var(--dc-shell-separator);
-      box-shadow: 0 1px 0 rgb(0 0 0 / 10%);
-      background: var(--dc-bg-primary);
-      flex-shrink: 0;
-      z-index: 10;
-    }
-    
-    .channel-hash {
-      color: var(--dc-muted);
-      font-size: 1.5rem;
-      font-weight: 500;
-      line-height: 1;
-    }
-    
-    .channel-title {
-      color: var(--dc-header-primary);
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    
-    .transcript-banner {
-      padding: 14px 16px 16px;
-      border-bottom: 1px solid var(--dc-shell-separator);
-      background: var(--dc-bg-primary);
-    }
-    
-    .transcript-banner-top {
-      display: flex;
+      gap: 16px;
       flex-wrap: wrap;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 12px;
     }
     
-    .transcript-banner h2 {
+    .header h1 {
+      color: var(--dc-header-primary);
+      font-size: 20px;
+      font-weight: 700;
       margin: 0;
-      color: var(--dc-header-primary);
-      font-size: 1.125rem;
-      font-weight: 700;
     }
     
-    .transcript-banner p {
-      margin: 4px 0 0;
-      color: var(--dc-header-secondary);
-      font-size: 0.8125rem;
-    }
-    
-    .transcript-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgb(var(--dc-blurple-rgb) / 22%);
-      border: 1px solid rgb(var(--dc-blurple-rgb) / 35%);
-      color: #dee0fc;
-      font-size: 0.6875rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-    
-    .stats-grid {
+    .header-info {
       display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      background: transparent;
-      border: none;
-    }
-    
-    .stat-card {
-      background: rgb(0 0 0 / 15%);
-      border: 1px solid var(--dc-shell-border);
-      border-radius: 12px;
-      flex: 1 1 auto;
-      min-width: 0;
-      padding: 12px 16px;
-      transition: all 0.1s ease;
-    }
-    
-    .stat-card:hover {
-      background: rgb(255 255 255 / 4%);
-      border-color: rgb(255 255 255 / 12%);
-    }
-    
-    .stat-label {
-      display: block;
+      gap: 20px;
+      margin-left: auto;
+      font-size: 12px;
       color: var(--dc-muted);
-      font-size: 0.6875rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 6px;
-    }
-    
-    .stat-value {
-      color: var(--dc-header-primary);
-      font-size: 0.9375rem;
-      font-weight: 600;
-      line-height: 1.25;
-      word-break: break-word;
     }
     
     .messages-container {
+      margin: 0 auto;
+      max-width: 1500px;
+      width: 100%;
+      padding: 16px 20px;
       flex: 1;
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding: 0 0 16px;
-      scroll-behavior: smooth;
     }
     
-    .messages-container::-webkit-scrollbar {
-      width: 8px;
-    }
-    
-    .messages-container::-webkit-scrollbar-track {
-      background: var(--dc-bg-tertiary);
-    }
-    
-    .messages-container::-webkit-scrollbar-thumb {
-      background: var(--dc-interactive-muted);
-      border-radius: 8px;
-    }
-    
-    .dc-date-divider {
-      display: flex;
-      align-items: center;
-      margin: 1.5rem 1rem 0.5rem;
-      position: relative;
-    }
-    
-    .dc-date-divider::before,
-    .dc-date-divider::after {
-      content: "";
-      flex: 1;
-      height: 1px;
-      background: var(--dc-bg-tertiary);
-    }
-    
-    .dc-date-divider span {
-      color: var(--dc-muted);
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 0 8px;
-      flex-shrink: 0;
-    }
-    
+    /* Discord.css message styles */
     .dc-msg {
       --dc-msg-bg: inherit;
       --dc-msg-bg-hover: rgb(0 0 0 / var(--dc-msg-bg-hover-opacity));
@@ -380,135 +105,7 @@
       --dc-msg-bg: var(--dc-msg-bg-hover);
     }
     
-    .dc-msg--compact {
-      margin-block-start: 0;
-      min-height: 1.375rem;
-      padding-block: 0.125rem;
-    }
-    
-    .dc-msg--compact .dc-msg-author-img,
-    .dc-msg--compact .dc-msg-author {
-      display: none;
-    }
-    
-    .dc-msg-hover-time {
-      position: absolute;
-      inset-inline-start: 0;
-      inline-size: 3.5rem;
-      text-align: end;
-      padding-inline-end: 0.25rem;
-      color: var(--dc-muted);
-      font-size: 0.6875rem;
-      line-height: 1.375rem;
-      opacity: 0;
-      user-select: none;
-      pointer-events: none;
-    }
-    
-    .dc-msg--compact:hover .dc-msg-hover-time {
-      opacity: 1;
-    }
-    
-    .dc-msg--has-interaction {
-      margin-block-start: 0.25rem;
-    }
-    
-    .dc-msg--has-interaction.dc-msg--compact {
-      margin-block-start: 0;
-    }
-    
-    .dc-msg--interaction-cont.dc-msg--compact::before {
-      content: "";
-      position: absolute;
-      inset-inline-start: 2.25rem;
-      inset-block-start: -0.625rem;
-      inline-size: 2px;
-      block-size: 0.625rem;
-      background: var(--dc-interactive-muted);
-      pointer-events: none;
-    }
-    
-    .dc-cmd-interaction {
-      align-items: center;
-      color: var(--dc-header-secondary);
-      display: flex;
-      flex-wrap: wrap;
-      column-gap: 0.25rem;
-      row-gap: 0.125rem;
-      font-size: 0.875rem;
-      font-weight: 400;
-      line-height: 1.125rem;
-      margin-block-end: 0.125rem;
-      min-height: 1.125rem;
-      position: relative;
-    }
-    
-    .dc-cmd-interaction-avatar {
-      block-size: 1rem;
-      inline-size: 1rem;
-      border-radius: 50%;
-      flex-shrink: 0;
-      object-fit: cover;
-    }
-    
-    .dc-cmd-interaction-name {
-      color: var(--interaction-user-color, var(--dc-header-primary));
-      cursor: pointer;
-      font-weight: 500;
-    }
-    
-    .dc-cmd-interaction-used {
-      color: var(--dc-header-secondary);
-    }
-    
-    .dc-cmd-pill {
-      align-items: center;
-      background: rgb(var(--dc-blurple-rgb) / 15%);
-      border-radius: 0.1875rem;
-      color: #dee0fc;
-      display: inline-flex;
-      font-weight: 500;
-      gap: 0.125rem;
-      padding-inline: 0.125rem;
-    }
-    
-    .dc-cmd-pill::before {
-      background-color: #dee0fc;
-      block-size: 0.625rem;
-      content: "";
-      display: inline-block;
-      inline-size: 0.625rem;
-      mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22currentColor%22%20d%3D%22M2.06%207.61c-.25.95.31%201.92%201.26%202.18l4.3%201.15c.94.25%201.91-.31%202.17-1.26l1.15-4.3c.25-.94-.31-1.91-1.26-2.17l-4.3-1.15c-.94-.25-1.91.31-2.17%201.26l-1.15%204.3ZM12.98%207.87a2%202%200%200%200%201.75%202.95H20a2%202%200%200%200%201.76-2.95l-2.63-4.83a2%202%200%200%200-3.51%200l-2.63%204.83ZM5.86%2013.27a.89.89%200%200%201%201.28%200l.75.77a.9.9%200%200%200%20.54.26l1.06.12c.5.06.85.52.8%201.02l-.13%201.08c-.02.2.03.42.14.6l.56.92c.27.43.14%201-.28%201.26l-.9.58a.92.92%200%200%200-.37.48l-.36%201.02a.9.9%200%200%201-1.15.57l-1-.36a.89.89%200%200%200-.6%200l-1%20.36a.9.9%200%200%201-1.15-.57l-.36-1.02a.92.92%200%200%200-.37-.48l-.9-.58a.93.93%200%200%201-.28-1.26l.56-.93c.11-.17.16-.38.14-.59l-.12-1.08c-.06-.5.3-.96.8-1.02l1.05-.12a.9.9%200%200%200%20.54-.26l.75-.77ZM18.52%2013.71a1.1%201.1%200%200%200-2.04%200l-.46%201.24c-.19.5-.57.88-1.07%201.07l-1.24.46a1.1%201.1%200%200%200%200%202.04l1.24.46c.5.19.88.57%201.07%201.07l.46%201.24c.35.95%201.7.95%202.04%200l.46-1.24c.19-.5.57-.88%201.07-1.07l1.24-.46a1.1%201.1%200%200%200%200-2.04l-1.24-.46a1.8%201.8%200%200%201-1.07-1.07l-.46-1.24Z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
-      mask-size: cover;
-    }
-    
-    .dc-msg--has-interaction:not(.dc-msg--interaction-cont) .dc-cmd-interaction::before {
-      block-size: 2.375rem;
-      border-block-start: 2px solid var(--dc-interactive-muted);
-      border-inline-start: 2px solid var(--dc-interactive-muted);
-      border-start-start-radius: 6px;
-      box-sizing: border-box;
-      content: "";
-      display: block;
-      inline-size: 2.0625rem;
-      inset-block-start: 0.5625rem;
-      inset-inline-start: -2.25rem;
-      pointer-events: none;
-      position: absolute;
-    }
-    
-    .dc-msg-reply-content {
-      color: var(--dc-muted);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      max-inline-size: min(28rem, 70vw);
-    }
-    
-    .dc-msg-author-name--colored {
-      color: var(--author-color, var(--dc-header-primary));
-    }
-    
+    /* System message styles */
     .dc-system-msg {
       font-family: var(--dc-base-font);
       background: inherit;
@@ -554,7 +151,7 @@
       min-height: 1.125rem;
     }
     
-    .dc-msg-reply--message::before {
+    .dc-msg-reply::before {
       block-size: calc(100% - .5rem);
       border-block-start: .125rem solid var(--dc-interactive-muted);
       border-inline-start: .125rem solid var(--dc-interactive-muted);
@@ -582,6 +179,27 @@
       cursor: pointer;
       font-weight: 500;
       opacity: .64;
+    }
+    
+    .dc-msg-reply-cmd {
+      --dc-msg-reply-cmd-color: var(--dc-link);
+      color: var(--dc-msg-reply-cmd-color);
+      cursor: default;
+      font-weight: 500;
+      background: rgb(var(--dc-blurple-rgb)/var(--dc-mention-bg-opacity));
+      border-radius: .1875rem;
+      padding-inline: .125rem;
+    }
+    
+    .dc-msg-reply-cmd::before {
+      content: "";
+      mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22currentColor%22%20d%3D%22M2.06%207.61c-.25.95.31%201.92%201.26%202.18l4.3%201.15c.94.25%201.91-.31%202.17-1.26l1.15-4.3c.25-.94-.31-1.91-1.26-2.17l-4.3-1.15c-.94-.25-1.91.31-2.17%201.26l-1.15%204.3ZM12.98%207.87a2%202%200%200%200%201.75%202.95H20a2%202%200%200%200%201.76-2.95l-2.63-4.83a2%202%200%200%200-3.51%200l-2.63%204.83ZM5.86%2013.27a.89.89%200%200%201%201.28%200l.75.77a.9.9%200%200%200%20.54.26l1.06.12c.5.06.85.52.8%201.02l-.13%201.08c-.02.2.03.42.14.6l.56.92c.27.43.14%201-.28%201.26l-.9.58a.92.92%200%200%200-.37.48l-.36%201.02a.9.9%200%200%201-1.15.57l-1-.36a.89.89%200%200%200-.6%200l-1%20.36a.9.9%200%200%201-1.15-.57l-.36-1.02a.92.92%200%200%200-.37-.48l-.9-.58a.93.93%200%200%201-.28-1.26l.56-.93c.11-.17.16-.38.14-.59l-.12-1.08c-.06-.5.3-.96.8-1.02l1.05-.12a.9.9%200%200%200%20.54-.26l.75-.77ZM18.52%2013.71a1.1%201.1%200%200%200-2.04%200l-.46%201.24c-.19.5-.57.88-1.07%201.07l-1.24.46a1.1%201.1%200%200%200%200%202.04l1.24.46c.5.19.88.57%201.07%201.07l.46%201.24c.35.95%201.7.95%202.04%200l.46-1.24c.19-.5.57-.88%201.07-1.07l1.24-.46a1.1%201.1%200%200%200%200-2.04l-1.24-.46a1.8%201.8%200%200%201-1.07-1.07l-.46-1.24Z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
+      mask-size: cover;
+      inline-size: .625rem;
+      display: inline-block;
+      block-size: .625rem;
+      background-color: var(--dc-msg-reply-cmd-color);
+      margin-inline-end: .1875rem;
     }
     
     .dc-msg-author {
@@ -632,17 +250,10 @@
       padding-inline: .275rem;
       text-transform: uppercase;
       margin-inline-start: .25rem;
-      vertical-align: top;
-    }
-    
-    .dc-tag--app {
-      --dc-tag-bg: #5865f2;
-      block-size: 0.9375rem;
     }
     
     .dc-msg-content {
       color: var(--dc-color);
-      font-family: var(--dc-base-font), "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
       font-weight: 400;
       line-height: 1.375rem;
       margin: 0;
@@ -650,23 +261,7 @@
       word-break: break-word;
     }
     
-    .dc-emoji {
-      block-size: 1.375em;
-      inline-size: 1.375em;
-      margin: 0 0.05em;
-      object-fit: contain;
-      vertical-align: -0.275em;
-    }
-    
-    .dc-component-text .dc-emoji,
-    .dc-embed-description .dc-emoji,
-    .dc-embed-title .dc-emoji,
-    .dc-msg-reply-content .dc-emoji {
-      block-size: 1.125em;
-      inline-size: 1.125em;
-      vertical-align: -0.2em;
-    }
-    
+    /* Mention styles */
     .dc-mention {
       --dc-mention-bg: var(--dc-blurple-rgb);
       --dc-mention-bg-opacity-hover: 1;
@@ -699,6 +294,7 @@
       cursor: text;
     }
     
+    /* Discord markdown formatting styles */
     .dc-code-inline {
       background: var(--dc-bg-tertiary);
       border-radius: .1875rem;
@@ -826,6 +422,7 @@
       padding-block: .125rem;
     }
     
+    /* Components v2 styles */
     .dc-component-container {
       background: var(--dc-bg-secondary);
       border-inline-start: .25rem solid var(--dc-bg-tertiary);
@@ -840,7 +437,6 @@
     
     .dc-component-text {
       color: var(--dc-color);
-      font-family: var(--dc-base-font), "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
       font-size: .875rem;
       line-height: 1.375rem;
       white-space: pre-wrap;
@@ -930,6 +526,7 @@
       object-fit: contain;
     }
     
+    /* Discord.css embed styles */
     .dc-embed {
       --dc-embed-color: var(--dc-bg-tertiary);
       --dc-embed-span: span 1;
@@ -1029,11 +626,9 @@
     }
     
     .dc-embed-image > img {
-      border-radius: 0.5rem;
-      display: block;
-      max-block-size: 21.875rem;
-      max-inline-size: min(25rem, 100%);
-      object-fit: contain;
+      border-radius: .25rem;
+      max-block-size: 18.75rem;
+      max-inline-size: 100%;
     }
     
     .dc-embed-footer {
@@ -1048,199 +643,54 @@
       color: var(--dc-header-secondary);
     }
     
-    .dc-attachments {
+    /* Attachment styles (separate from embeds) */
+    .attachment-container {
+      margin-block-start: .5rem;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
-      margin-block-start: 0.25rem;
-      max-inline-size: 34.375rem;
+      gap: .5rem;
     }
     
-    .dc-media {
-      border-radius: 0.5rem;
-      inline-size: fit-content;
-      max-inline-size: 100%;
-      overflow: hidden;
-      position: relative;
+    .attachment {
+      background-color: var(--dc-bg-secondary);
+      padding: .5rem;
+      border-radius: .25rem;
+      border: 1px solid rgba(79, 84, 92, 0.3);
+      max-width: 100%;
+      width: fit-content;
     }
     
-    .dc-media--image {
-      background: var(--dc-bg-secondary);
-      border: 1px solid rgb(0 0 0 / 12%);
-    }
-    
-    .dc-media--image a {
-      display: block;
-      line-height: 0;
-    }
-    
-    .dc-media--image img {
-      block-size: auto;
-      display: block;
-      inline-size: auto;
-      max-block-size: 21.875rem;
-      max-inline-size: min(25rem, 100%);
+    .attachment-image,
+    .attachment-video {
+      max-width: 400px;
+      max-height: 300px;
+      border-radius: .25rem;
       object-fit: contain;
     }
     
-    .dc-msg-content .dc-media--external,
-    .dc-embed-description .dc-media--external {
-      display: block;
-      margin-block-start: 0.25rem;
+    .attachment-image-link {
+      display: inline-block;
     }
     
-    .dc-media--gif img {
-      max-inline-size: min(20rem, 100%);
+    .attachment-audio {
+      width: 100%;
+      max-width: 400px;
     }
     
-    .dc-media--spoiler img {
-      filter: blur(44px);
-      transform: scale(1.05);
-    }
-    
-    .dc-media--spoiler:hover img,
-    .dc-media--spoiler:focus-within img {
-      filter: none;
-      transform: none;
-    }
-    
-    .dc-media-spoiler-badge {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgb(0 0 0 / 45%);
-      color: var(--dc-header-primary);
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      pointer-events: none;
-      transition: opacity 0.15s ease;
-    }
-    
-    .dc-media--spoiler:hover .dc-media-spoiler-badge,
-    .dc-media--spoiler:focus-within .dc-media-spoiler-badge {
-      opacity: 0;
-    }
-    
-    .dc-media--video {
-      background: #000;
-      border-radius: 0.5rem;
-      max-inline-size: 25rem;
-    }
-    
-    .dc-media--video video {
-      block-size: auto;
-      display: block;
-      max-block-size: 21.875rem;
-      max-inline-size: 100%;
-    }
-    
-    .dc-file {
-      align-items: center;
-      background: var(--dc-bg-secondary);
-      border: 1px solid rgb(255 255 255 / 6%);
-      border-radius: 0.5rem;
-      color: inherit;
-      display: flex;
-      gap: 0.75rem;
-      max-inline-size: 27rem;
-      padding: 0.625rem 0.875rem;
-      text-decoration: none;
-      transition: background-color 0.12s ease, border-color 0.12s ease;
-    }
-    
-    .dc-file:hover {
-      background: #35373c;
-      border-color: rgb(255 255 255 / 10%);
-    }
-    
-    .dc-file-icon {
-      align-items: center;
-      background: var(--dc-bg-tertiary);
-      block-size: 3rem;
-      border-radius: 0.375rem;
-      color: var(--dc-header-secondary);
-      display: flex;
-      flex-shrink: 0;
-      font-size: 0.625rem;
-      font-weight: 700;
-      inline-size: 3rem;
-      justify-content: center;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-    }
-    
-    .dc-file-icon--audio {
-      background: rgb(var(--dc-blurple-rgb) / 20%);
-      color: #c9cdfb;
-    }
-    
-    .dc-file-icon--audio::before {
-      content: "";
-      display: block;
-      inline-size: 1.25rem;
-      block-size: 1.25rem;
-      background-color: currentColor;
-      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h1v-8H5v-1a7 7 0 0 1 14 0v1h-1v8h1c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9Z'/%3E%3C/svg%3E") center/contain no-repeat;
-    }
-    
-    .dc-file-body {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-      min-inline-size: 0;
-      flex: 1;
-    }
-    
-    .dc-file-name {
+    .attachment-link {
       color: var(--dc-link);
-      font-size: 0.875rem;
-      font-weight: 500;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      text-decoration: none;
+      font-size: .875rem;
+      word-break: break-all;
+      display: block;
+      margin-top: .25rem;
     }
     
-    .dc-file:hover .dc-file-name {
+    .attachment-link:hover {
       text-decoration: underline;
     }
     
-    .dc-file-meta {
-      color: var(--dc-muted);
-      font-size: 0.75rem;
-    }
-    
-    .dc-file--audio {
-      align-items: stretch;
-      cursor: default;
-      flex-direction: column;
-      gap: 0.5rem;
-      max-inline-size: 27rem;
-    }
-    
-    .dc-file--audio:hover {
-      background: var(--dc-bg-secondary);
-    }
-    
-    .dc-file--audio .dc-file-row {
-      align-items: center;
-      display: flex;
-      gap: 0.75rem;
-    }
-    
-    .dc-file-audio-player {
-      inline-size: 100%;
-      block-size: 2rem;
-      accent-color: var(--dc-blurple);
-    }
-    
-    .dc-file-audio-player::-webkit-media-controls-panel {
-      background: var(--dc-bg-tertiary);
-    }
-    
+    /* Sticker styles */
     .sticker-container {
       margin-block-start: .5rem;
       display: flex;
@@ -1254,23 +704,29 @@
       object-fit: contain;
     }
     
-    .dc-media--tenor {
-      margin-block-start: 0.25rem;
+    /* Tenor GIF styles */
+    .tenor-gif {
+      margin-block-start: .5rem;
+      max-width: 400px;
+      max-height: 300px;
+      border-radius: .25rem;
+      object-fit: contain;
+      display: block;
     }
     
-    .dc-media--tenor img {
-      max-inline-size: min(20rem, 100%);
-      max-block-size: 18.75rem;
+    .tenor-gif-link {
+      display: inline-block;
     }
     
+    /* Footer styles */
     .footer {
-      background-color: var(--dc-bg-primary);
-      padding: 12px 16px;
+      background-color: var(--dc-bg-secondary);
+      padding: 16px 20px;
       text-align: center;
-      font-size: 0.75rem;
+      font-size: 12px;
       color: var(--dc-muted);
-      border-top: 1px solid var(--dc-shell-separator);
-      flex-shrink: 0;
+      border-top: 1px solid var(--dc-bg-tertiary);
+      margin-top: auto;
     }
     
     .empty-state {
@@ -1281,58 +737,25 @@
     }
     
     @media (max-width: 768px) {
-      .guild-rail {
-        display: none;
+      .header {
+        padding: 16px 12px;
+        flex-direction: column;
+        align-items: flex-start;
       }
       
-      .channel-sidebar {
-        display: none;
+      .header h1 {
+        font-size: 18px;
       }
       
-      .chat-panel {
+      .header-info {
+        flex-direction: column;
+        gap: 4px;
+        margin-left: 0;
         width: 100%;
       }
       
-      html, body {
-        overflow: auto;
-        height: auto;
-        min-height: 100vh;
-      }
-      
-      .app {
-        height: auto;
-        min-height: 100vh;
-        overflow: visible;
-      }
-      
-      .chat-panel {
-        height: auto;
-        overflow: visible;
-      }
-      
       .messages-container {
-        overflow-y: visible;
-        height: auto;
-      }
-      
-      .channel-header {
-        position: sticky;
-        top: 0;
-        padding: 0 12px;
-      }
-      
-      .stats-grid {
-        gap: 10px;
-      }
-      
-      .stat-card {
-        flex: 1 1 calc(50% - 10px);
-        min-width: calc(50% - 10px);
-        padding: 10px 12px;
-      }
-      
-      .transcript-banner {
-        padding: 12px;
+        padding: 16px 12px;
       }
       
       .dc-msg {
@@ -1354,16 +777,13 @@
         max-inline-size: 100%;
       }
       
-      .dc-attachments,
-      .dc-media--video,
-      .dc-file,
-      .dc-file--audio {
-        max-inline-size: 100%;
+      .attachment-image,
+      .attachment-video {
+        max-width: 100%;
       }
       
-      .dc-media--image img,
-      .dc-media--tenor img {
-        max-inline-size: 100%;
+      .tenor-gif {
+        max-width: 100%;
       }
       
       .sticker {
@@ -1371,306 +791,192 @@
         max-height: 120px;
       }
     }
-    
-    @media (max-width: 480px) {
-      .stat-card {
-        flex: 1 1 100%;
-        min-width: 100%;
-      }
-    }
   </style>
 </head>
 <body>
-  <div class="app">
-    <aside class="guild-rail" aria-label="Server list">
-      <div class="guild-icon-wrap">
-        {{#hasGuildIcon}}
-        <img class="guild-icon" src="{{guildIconUrl}}" alt="{{guildName}}">
-        {{/hasGuildIcon}}
-        {{^hasGuildIcon}}
-        <div class="guild-icon-fallback" title="{{guildName}}">{{guildInitial}}</div>
-        {{/hasGuildIcon}}
+  <div class="header">
+    <h1># {{channelName}}</h1>
+    <div class="header-info">
+      <div><strong>Servidor:</strong> {{guildName}}</div>
+      <div><strong>Criado em:</strong> {{createdAtFull}}</div>
+    </div>
+  </div>
+  
+  <div class="messages-container">
+    {{#messages}}
+    {{#isSystemMessage}}
+    <div class="dc-system-msg">
+      <span class="dc-system-msg-text">{{{systemMessageText}}}</span>
+      <span class="dc-system-msg-timestamp">{{timestamp}}</span>
+    </div>
+    {{/isSystemMessage}}
+    {{^isSystemMessage}}
+    <div class="dc-msg">
+      {{#isCommand}}
+      <div class="dc-msg-reply">
+        {{#commandUserAvatar}}<img class="dc-msg-reply-img" src="{{commandUserAvatar}}" alt="{{commandUser}}">{{/commandUserAvatar}}
+        <span class="dc-msg-reply-name">{{commandUser}}</span>
+        <span>used</span>
+        <span class="dc-msg-reply-cmd">/{{commandName}}</span>
       </div>
-    </aside>
-
-    <nav class="channel-sidebar" aria-label="Channels">
-      <div class="channel-sidebar-header">{{guildName}}</div>
-      <div class="channel-sidebar-body">
-        <span class="channel-sidebar-label">Text Channels</span>
-        <div class="channel-sidebar-item channel-sidebar-item--active">
-          <span class="channel-sidebar-hash">#</span>
-          <span>{{channelName}}</span>
+      {{/isCommand}}
+      
+      <img class="dc-msg-author-img" src="{{avatarUrl}}" alt="{{author}}">
+      
+      <div class="dc-msg-author">
+        <span class="dc-msg-author-name">{{author}}</span>
+        {{#isBot}}<span class="dc-tag">Bot</span>{{/isBot}}
+        <span class="dc-msg-author-timestamp">{{timestamp}}</span>
+      </div>
+      
+      {{#content}}<div class="dc-msg-content">{{{content}}}</div>{{/content}}
+      
+      {{#hasEmbeds}}
+      <div class="dc-msg-components">
+        {{#embeds}}
+        <div class="dc-embed" style="{{#color}}--dc-embed-color: {{color}};{{/color}}">
+          {{#author}}<div class="dc-embed-author"><span>{{{author}}}</span></div>{{/author}}
+          {{#thumbnail}}<div class="dc-embed-thumbnail"><img src="{{thumbnail}}" alt="thumbnail"></div>{{/thumbnail}}
+          {{#title}}<div class="dc-embed-title">{{{title}}}</div>{{/title}}
+          {{#description}}<div class="dc-embed-description">{{{description}}}</div>{{/description}}
+          
+          {{#fields.length}}
+          <div class="dc-embed-fields">
+            {{#fields}}
+            <div class="dc-embed-field{{#inline}}-inline{{/inline}}">
+              <div class="dc-embed-field-name">{{{name}}}</div>
+              <div class="dc-embed-field-value">{{{value}}}</div>
+            </div>
+            {{/fields}}
+          </div>
+          {{/fields.length}}
+          
+          {{#image}}<div class="dc-embed-image"><img src="{{image}}" alt="embed image"></div>{{/image}}
+          {{#footer}}<div class="dc-embed-footer">{{{footer}}}</div>{{/footer}}
         </div>
+        {{/embeds}}
       </div>
-      <div class="channel-sidebar-meta">Transcript archive</div>
-    </nav>
-
-    <main class="chat-panel">
-      <header class="channel-header">
-        <span class="channel-hash" aria-hidden="true">#</span>
-        <h1 class="channel-title">{{channelName}}</h1>
-      </header>
-
-      <div class="messages-container">
-        <section class="transcript-banner">
-          <div class="transcript-banner-top">
-            <div>
-              <h2>Transcript</h2>
-              <p>Exported {{createdAtFull}} · Closed {{closedAtFull}}</p>
-            </div>
-            <span class="transcript-badge">Archive</span>
-          </div>
-          <div class="stats-grid">
-            <div class="stat-card">
-              <span class="stat-label">Messages</span>
-              <span class="stat-value">{{messageCount}}</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-label">Participants</span>
-              <span class="stat-value">{{participantCount}}</span>
-            </div>
-            {{#hasMessageRange}}
-            <div class="stat-card">
-              <span class="stat-label">First message</span>
-              <span class="stat-value">{{firstMessageAt}}</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-label">Last message</span>
-              <span class="stat-value">{{lastMessageAt}}</span>
-            </div>
-            {{/hasMessageRange}}
-            <div class="stat-card">
-              <span class="stat-label">Server</span>
-              <span class="stat-value">{{guildName}}</span>
-            </div>
-          </div>
-        </section>
+      {{/hasEmbeds}}
+      
+      {{#hasAttachments}}
+      <div class="attachment-container">
+        {{#attachments}}
+        {{#isImage}}
+        <a href="{{url}}" class="attachment-image-link" target="_blank"><img src="{{url}}" alt="{{name}}" class="attachment-image"></a>
+        {{/isImage}}
+        {{^isImage}}
+        <div class="attachment">
+          {{#isVideo}}<video src="{{url}}" controls class="attachment-video"></video>{{/isVideo}}
+          {{#isAudio}}<audio src="{{url}}" controls class="attachment-audio"></audio>{{/isAudio}}
+          <a href="{{url}}" class="attachment-link" target="_blank">📎 {{name}}</a>
+        </div>
+        {{/isImage}}
+        {{/attachments}}
+      </div>
+      {{/hasAttachments}}
+      
+      {{#hasStickers}}
+      <div class="sticker-container">
+        {{#stickers}}
+        <img src="{{url}}" alt="{{name}}" class="sticker" title="{{name}}">
+        {{/stickers}}
+      </div>
+      {{/hasStickers}}
+      
+      {{#hasTenorGifs}}
+      {{#tenorGifs}}
+      <a href="{{.}}" class="tenor-gif-link" target="_blank"><img src="{{.}}" alt="Tenor GIF" class="tenor-gif"></a>
+      {{/tenorGifs}}
+      {{/hasTenorGifs}}
+      
+      {{#hasComponents}}
+      {{#components}}
+      {{! Type 10: Text component }}
+      {{#isText}}
+      <div class="dc-component-text">{{{content}}}</div>
+      {{/isText}}
+      
+      {{! Type 17: Container component }}
+      {{#isContainer}}
+      <div class="dc-component-container" style="{{#accentColor}}border-inline-start-color: {{accentColor}};{{/accentColor}}">
+        {{#components}}
+        {{! Type 10: Text component inside container }}
+        {{#isText}}
+        <div class="dc-component-text">{{{content}}}</div>
+        {{/isText}}
         
-        {{#messages}}
-        {{#showDateDivider}}
-        <div class="dc-date-divider"><span>{{dateDividerLabel}}</span></div>
-        {{/showDateDivider}}
-        {{#isSystemMessage}}
-        <div class="dc-system-msg">
-          <span class="dc-system-msg-text">{{{systemMessageText}}}</span>
-          <span class="dc-system-msg-timestamp">{{timestamp}}</span>
-        </div>
-        {{/isSystemMessage}}
-        {{^isSystemMessage}}
-        <div class="dc-msg{{#isCompact}} dc-msg--compact{{/isCompact}}{{#showInteraction}} dc-msg--has-interaction{{/showInteraction}}{{#isInteractionContinuation}} dc-msg--interaction-cont{{/isInteractionContinuation}}">
-          {{#isCompact}}
-          {{^isInteractionContinuation}}
-          <span class="dc-msg-hover-time">{{shortTimestamp}}</span>
-          {{/isInteractionContinuation}}
-          {{/isCompact}}
-
-          {{#showInteraction}}
-          <div class="dc-cmd-interaction">
-            {{#commandUserAvatar}}<img class="dc-cmd-interaction-avatar" src="{{commandUserAvatar}}" alt="{{commandUser}}">{{/commandUserAvatar}}
-            <span class="dc-cmd-interaction-name"{{#commandUserColor}} style="--interaction-user-color: {{commandUserColor}}"{{/commandUserColor}}>{{commandUser}}</span>
-            <span class="dc-cmd-interaction-used">used</span>
-            <span class="dc-cmd-pill">/{{commandName}}</span>
-          </div>
-          {{/showInteraction}}
-
-          {{#replyTo}}
-          <div class="dc-msg-reply dc-msg-reply--message">
-            <img class="dc-msg-reply-img" src="{{avatarUrl}}" alt="{{author}}">
-            <span class="dc-msg-reply-name">{{author}}</span>
-            {{#hasContent}}<span class="dc-msg-reply-content">{{{content}}}</span>{{/hasContent}}
-            {{^hasContent}}{{#hasAttachment}}<span class="dc-msg-reply-content">Attachment</span>{{/hasAttachment}}{{/hasContent}}
-            {{^hasContent}}{{^hasAttachment}}{{#hasEmbed}}<span class="dc-msg-reply-content">Embed</span>{{/hasEmbed}}{{/hasAttachment}}{{/hasContent}}
-          </div>
-          {{/replyTo}}
-          
-          {{#showHeader}}
-          <img class="dc-msg-author-img" src="{{avatarUrl}}" alt="{{author}}">
-          
-          <div class="dc-msg-author">
-            <span class="dc-msg-author-name{{#authorColor}} dc-msg-author-name--colored{{/authorColor}}"{{#authorColor}} style="--author-color: {{authorColor}}"{{/authorColor}}>{{author}}</span>
-            {{#isApp}}<span class="dc-tag dc-tag--app">App</span>{{/isApp}}
-            {{^isApp}}{{#isBot}}<span class="dc-tag">Bot</span>{{/isBot}}{{/isApp}}
-            <span class="dc-msg-author-timestamp">{{timestamp}}</span>
-          </div>
-          {{/showHeader}}
-          
-          {{#content}}<div class="dc-msg-content">{{{content}}}</div>{{/content}}
-          
-          {{#hasEmbeds}}
-          <div class="dc-msg-components">
-            {{#embeds}}
-            {{#isImageOnly}}
-            <div class="dc-media dc-media--image">
-              <a href="{{image}}" target="_blank" rel="noopener noreferrer">
-                <img src="{{image}}" alt="Image" loading="lazy" referrerpolicy="no-referrer">
-              </a>
-            </div>
-            {{/isImageOnly}}
-            {{^isImageOnly}}
-            <div class="dc-embed" style="{{#color}}--dc-embed-color: {{color}};{{/color}}">
-              {{#author}}<div class="dc-embed-author"><span>{{{author}}}</span></div>{{/author}}
-              {{#thumbnail}}<div class="dc-embed-thumbnail"><img src="{{thumbnail}}" alt="thumbnail" loading="lazy" referrerpolicy="no-referrer"></div>{{/thumbnail}}
-              {{#title}}<div class="dc-embed-title">{{{title}}}</div>{{/title}}
-              {{#description}}<div class="dc-embed-description">{{{description}}}</div>{{/description}}
-              
-              {{#fields.length}}
-              <div class="dc-embed-fields">
-                {{#fields}}
-                <div class="dc-embed-field{{#inline}}-inline{{/inline}}">
-                  <div class="dc-embed-field-name">{{{name}}}</div>
-                  <div class="dc-embed-field-value">{{{value}}}</div>
-                </div>
-                {{/fields}}
-              </div>
-              {{/fields.length}}
-              
-              {{#image}}<div class="dc-embed-image"><img src="{{image}}" alt="embed image" loading="lazy" referrerpolicy="no-referrer"></div>{{/image}}
-              {{#footer}}<div class="dc-embed-footer">{{{footer}}}</div>{{/footer}}
-            </div>
-            {{/isImageOnly}}
-            {{/embeds}}
-          </div>
-          {{/hasEmbeds}}
-          
-          {{#hasAttachments}}
-          <div class="dc-attachments">
-            {{#attachments}}
-            {{#isImage}}
-            <div class="dc-media dc-media--image{{#isGif}} dc-media--gif{{/isGif}}{{#isSpoiler}} dc-media--spoiler{{/isSpoiler}}">
-              <a href="{{url}}" target="_blank" rel="noopener noreferrer">
-                <img src="{{url}}" alt="{{name}}" loading="lazy" referrerpolicy="no-referrer"{{#hasDimensions}} width="{{width}}" height="{{height}}"{{/hasDimensions}}>
-              </a>
-              {{#isSpoiler}}<span class="dc-media-spoiler-badge">Spoiler</span>{{/isSpoiler}}
-            </div>
-            {{/isImage}}
-            {{#isVideo}}
-            <div class="dc-media dc-media--video">
-              <video src="{{url}}" controls preload="metadata"{{#hasDimensions}} width="{{width}}" height="{{height}}"{{/hasDimensions}}></video>
-            </div>
-            {{/isVideo}}
-            {{#isAudio}}
-            <div class="dc-file dc-file--audio">
-              <div class="dc-file-row">
-                <div class="dc-file-icon dc-file-icon--audio"></div>
-                <div class="dc-file-body">
-                  <span class="dc-file-name">{{name}}</span>
-                  <span class="dc-file-meta">{{sizeFormatted}}</span>
-                </div>
-              </div>
-              <audio class="dc-file-audio-player" src="{{url}}" controls preload="metadata"></audio>
-            </div>
-            {{/isAudio}}
-            {{#isFile}}
-            <a class="dc-file" href="{{url}}" target="_blank" rel="noopener noreferrer" download>
-              <div class="dc-file-icon"><span>{{extension}}</span></div>
-              <div class="dc-file-body">
-                <span class="dc-file-name">{{name}}</span>
-                <span class="dc-file-meta">{{sizeFormatted}}</span>
-              </div>
-            </a>
-            {{/isFile}}
-            {{/attachments}}
-          </div>
-          {{/hasAttachments}}
-          
-          {{#hasStickers}}
-          <div class="sticker-container">
-            {{#stickers}}
-            <img src="{{url}}" alt="{{name}}" class="sticker" title="{{name}}">
-            {{/stickers}}
-          </div>
-          {{/hasStickers}}
-          
-          {{#hasTenorGifs}}
-          {{#tenorGifs}}
-          <div class="dc-media dc-media--image dc-media--tenor">
-            <a href="{{.}}" target="_blank" rel="noopener noreferrer">
-              <img src="{{.}}" alt="GIF" loading="lazy">
-            </a>
-          </div>
-          {{/tenorGifs}}
-          {{/hasTenorGifs}}
-          
-          {{#hasComponents}}
+        {{! Type 14: Separator inside container }}
+        {{#isSeparator}}
+        <div class="dc-component-separator{{#spacing}} spacing-{{spacing}}{{/spacing}}"></div>
+        {{/isSeparator}}
+        
+        {{! Type 1: Action Row inside container }}
+        {{#isActionRow}}
+        <div class="dc-component-action-row">
           {{#components}}
-          {{#isText}}
-          <div class="dc-component-text">{{{content}}}</div>
-          {{/isText}}
-          
-          {{#isContainer}}
-          <div class="dc-component-container" style="{{#accentColor}}border-inline-start-color: {{accentColor}};{{/accentColor}}">
-            {{#components}}
-            {{#isText}}
-            <div class="dc-component-text">{{{content}}}</div>
-            {{/isText}}
-            
-            {{#isSeparator}}
-            <div class="dc-component-separator{{#spacing}} spacing-{{spacing}}{{/spacing}}"></div>
-            {{/isSeparator}}
-            
-            {{#isActionRow}}
-            <div class="dc-component-action-row">
-              {{#components}}
-              {{#isButton}}
-              <div class="dc-component-button style-{{style}}{{#disabled}} disabled{{/disabled}}">
-                {{#emoji}}
-                {{#id}}
-                <img class="dc-component-button-emoji" src="https://cdn.discordapp.com/emojis/{{id}}.{{#animated}}gif{{/animated}}{{^animated}}png{{/animated}}" alt="{{name}}">
-                {{/id}}
-                {{^id}}
-                <span class="dc-component-button-emoji">{{name}}</span>
-                {{/id}}
-                {{/emoji}}
-                {{label}}
-              </div>
-              {{/isButton}}
-              {{/components}}
-            </div>
-            {{/isActionRow}}
-            {{/components}}
+          {{! Type 2: Button }}
+          {{#isButton}}
+          <div class="dc-component-button style-{{style}}{{#disabled}} disabled{{/disabled}}">
+            {{#emoji}}
+            {{#id}}
+            <img class="dc-component-button-emoji" src="https://cdn.discordapp.com/emojis/{{id}}.{{#animated}}gif{{/animated}}{{^animated}}png{{/animated}}" alt="{{name}}">
+            {{/id}}
+            {{^id}}
+            <span class="dc-component-button-emoji">{{name}}</span>
+            {{/id}}
+            {{/emoji}}
+            {{label}}
           </div>
-          {{/isContainer}}
-          
-          {{#isSeparator}}
-          <div class="dc-component-separator{{#spacing}} spacing-{{spacing}}{{/spacing}}"></div>
-          {{/isSeparator}}
-          
-          {{#isActionRow}}
-          <div class="dc-component-action-row">
-            {{#components}}
-            {{#isButton}}
-            <div class="dc-component-button style-{{style}}{{#disabled}} disabled{{/disabled}}">
-              {{#emoji}}
-              {{#id}}
-              <img class="dc-component-button-emoji" src="https://cdn.discordapp.com/emojis/{{id}}.{{#animated}}gif{{/animated}}{{^animated}}png{{/animated}}" alt="{{name}}">
-              {{/id}}
-              {{^id}}
-              <span class="dc-component-button-emoji">{{name}}</span>
-              {{/id}}
-              {{/emoji}}
-              {{label}}
-            </div>
-            {{/isButton}}
-            {{/components}}
-          </div>
-          {{/isActionRow}}
+          {{/isButton}}
           {{/components}}
-          {{/hasComponents}}
         </div>
-        {{/isSystemMessage}}
-        {{/messages}}
-        
-        {{^messages}}
-        <div class="empty-state">
-          <p>No messages to display</p>
-        </div>
-        {{/messages}}
+        {{/isActionRow}}
+        {{/components}}
       </div>
-
-      <footer class="footer">
-        <p>Transcript generated automatically</p>
-      </footer>
-    </main>
+      {{/isContainer}}
+      
+      {{! Type 14: Separator (standalone) }}
+      {{#isSeparator}}
+      <div class="dc-component-separator{{#spacing}} spacing-{{spacing}}{{/spacing}}"></div>
+      {{/isSeparator}}
+      
+      {{! Type 1: Action Row (standalone) }}
+      {{#isActionRow}}
+      <div class="dc-component-action-row">
+        {{#components}}
+        {{! Type 2: Button }}
+        {{#isButton}}
+        <div class="dc-component-button style-{{style}}{{#disabled}} disabled{{/disabled}}">
+          {{#emoji}}
+          {{#id}}
+          <img class="dc-component-button-emoji" src="https://cdn.discordapp.com/emojis/{{id}}.{{#animated}}gif{{/animated}}{{^animated}}png{{/animated}}" alt="{{name}}">
+          {{/id}}
+          {{^id}}
+          <span class="dc-component-button-emoji">{{name}}</span>
+          {{/id}}
+          {{/emoji}}
+          {{label}}
+        </div>
+        {{/isButton}}
+        {{/components}}
+      </div>
+      {{/isActionRow}}
+      {{/components}}
+      {{/hasComponents}}
+    </div>
+    {{/isSystemMessage}}
+    {{/messages}}
+    
+    {{^messages}}
+    <div class="empty-state">
+      <p>Nenhuma mensagem para exibir</p>
+    </div>
+    {{/messages}}
+  </div>
+  
+  <div class="footer">
+    <p>Fechado em: {{closedAtFull}}</p>
+    <p style="margin-top: 4px; opacity: 0.7;">Transcript gerado automaticamente</p>
   </div>
 </body>
 </html>

@@ -1,15 +1,22 @@
 {
   "name": "@kazami-devs/transcripts",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Generate beautiful HTML transcripts from discord.js channels.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc && copyfiles -u 1 \"src/**/*.{mustache,md}\" dist",
     "dev": "tsc -w"
   },
-  "keywords": ["discord", "discordjs", "transcript", "html"],
+  "keywords": [
+    "discord",
+    "discordjs",
+    "transcript",
+    "html"
+  ],
   "author": "Camilla Viana",
   "license": "MIT",
   "publishConfig": {

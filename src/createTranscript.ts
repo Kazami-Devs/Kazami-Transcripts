@@ -65,7 +65,16 @@ export async function createTranscript(
 			timeZone: timezone,
 		}).format(date)
 
-	const mappedMessages = allMessages.reverse().map((message) => mapMessage(message, formatDate))
+	const formatTime = (date: Date) =>
+		new Intl.DateTimeFormat(locale, {
+			hour: '2-digit',
+			minute: '2-digit',
+			timeZone: timezone,
+		}).format(date)
+
+	const mappedMessages = allMessages
+		.reverse()
+		.map((message) => mapMessage(message, formatDate, formatTime))
 
 	const renderData = {
 		channelName: channel.name,

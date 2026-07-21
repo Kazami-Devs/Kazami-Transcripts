@@ -151,7 +151,10 @@ function getSystemMessageText(message: Message): string | null {
 function mapComponents(components: any[], message: Message): any[] {
 	if (!components || !Array.isArray(components)) return []
 
-	return components.map((component) => {
+	return components.map((rawComponent) => {
+		// Normalize: if component is a discord.js class instance, convert to plain JSON
+		const component =
+			typeof rawComponent?.toJSON === 'function' ? rawComponent.toJSON() : rawComponent
 		const mapped: any = {
 			type: component.type,
 			id: component.id,
@@ -160,6 +163,8 @@ function mapComponents(components: any[], message: Message): any[] {
 			isSeparator: component.type === 14,
 			isActionRow: component.type === 1,
 			isButton: component.type === 2,
+			isSection: component.type === 9,
+			isThumbnail: component.type === 11,
 		}
 
 		if (component.type === 10) {
@@ -196,6 +201,16 @@ function mapComponents(components: any[], message: Message): any[] {
 					}
 				: null
 			mapped.url = component.url || null
+		}
+		if (component.type === 9) {
+			mapped.components = mapComponents(component.components || [], message)
+			mapped.accessory = component.accessory
+				? mapComponents([component.accessory], message)[0]
+				: null
+		}
+		if (component.type === 11) {
+			mapped.url = component.media?.url || component.url || component.proxy_url || null
+			mapped.alt = component.alt || null
 		}
 
 		return mapped

@@ -479,21 +479,51 @@
       flex-wrap: wrap;
       gap: .5rem;
     }
+
+    .dc-component-section {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+    
+    .dc-component-section-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      min-inline-size: 0;
+    }
+    
+    .dc-component-thumbnail {
+      flex-shrink: 0;
+      align-self: flex-start;
+    }
+    
+    .dc-component-thumbnail img {
+      width: 5rem;
+      height: 5rem;
+      border-radius: .25rem;
+      object-fit: cover;
+      display: block;
+    }
+    
     
     .dc-component-button {
-      background: var(--dc-bg-primary);
+      background: var(--dc-bg-tertiary);
       color: var(--dc-white);
       border: none;
       border-radius: .25rem;
-      padding: .5rem 1rem;
+      padding: .375rem .75rem;
       font-size: .875rem;
       font-weight: 500;
       cursor: not-allowed;
       display: inline-flex;
       align-items: center;
-      gap: .5rem;
+      gap: .375rem;
       transition: background-color 0.17s ease;
       min-height: 2rem;
+      line-height: 1;
     }
     
     .dc-component-button.style-1 {
@@ -909,7 +939,26 @@
         {{#isSeparator}}
         <div class="dc-component-separator{{#spacing}} spacing-{{spacing}}{{/spacing}}"></div>
         {{/isSeparator}}
-        
+
+        {{#isSection}}
+          <div class="dc-component-section">
+            <div class="dc-component-section-content">
+              {{#components}}
+              {{#isText}}
+              <div class="dc-component-text">{{{content}}}</div>
+              {{/isText}}
+              {{/components}}
+            </div>
+            {{#accessory}}
+              {{#isThumbnail}}
+              <div class="dc-component-thumbnail">
+                <img src="{{url}}" alt="{{alt}}">
+              </div>
+              {{/isThumbnail}}
+            {{/accessory}}
+          </div>
+        {{/isSection}}
+             
         {{! Type 1: Action Row inside container }}
         {{#isActionRow}}
         <div class="dc-component-action-row">
@@ -940,6 +989,25 @@
       <div class="dc-component-separator{{#spacing}} spacing-{{spacing}}{{/spacing}}"></div>
       {{/isSeparator}}
       
+      {{#isSection}}
+        <div class="dc-component-section">
+           <div class="dc-component-section-content">
+            {{#components}}
+            {{#isText}}
+            <div class="dc-component-text">{{{content}}}</div>
+            {{/isText}}
+            {{/components}}
+          </div>
+          {{#accessory}}
+            {{#isThumbnail}}
+            <div class="dc-component-thumbnail">
+              <img src="{{url}}" alt="{{alt}}">
+            </div>
+            {{/isThumbnail}}
+          {{/accessory}}
+        </div>
+      {{/isSection}}
+        
       {{! Type 1: Action Row (standalone) }}
       {{#isActionRow}}
       <div class="dc-component-action-row">

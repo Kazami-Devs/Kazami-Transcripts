@@ -1111,6 +1111,11 @@
       object-fit: contain;
     }
     
+    .dc-media--embedded.dc-media--image img {
+      max-block-size: none;
+      max-inline-size: 100%;
+    }
+    
     .dc-msg-content .dc-media--external,
     .dc-embed-description .dc-media--external {
       display: block;
@@ -1157,6 +1162,10 @@
       background: #000;
       border-radius: 0.5rem;
       max-inline-size: 25rem;
+    }
+    
+    .dc-media--embedded.dc-media--video {
+      max-inline-size: 100%;
     }
     
     .dc-media--video video {
@@ -1564,7 +1573,7 @@
           <div class="dc-attachments">
             {{#attachments}}
             {{#isImage}}
-            <div class="dc-media dc-media--image{{#isGif}} dc-media--gif{{/isGif}}{{#isSpoiler}} dc-media--spoiler{{/isSpoiler}}">
+            <div class="dc-media dc-media--image{{#isGif}} dc-media--gif{{/isGif}}{{#isSpoiler}} dc-media--spoiler{{/isSpoiler}}{{#embedded}} dc-media--embedded{{/embedded}}">
               <a href="{{url}}" target="_blank" rel="noopener noreferrer">
                 <img src="{{url}}" alt="{{name}}" loading="lazy" referrerpolicy="no-referrer"{{#hasDimensions}} width="{{width}}" height="{{height}}"{{/hasDimensions}}>
               </a>
@@ -1572,7 +1581,7 @@
             </div>
             {{/isImage}}
             {{#isVideo}}
-            <div class="dc-media dc-media--video">
+            <div class="dc-media dc-media--video{{#embedded}} dc-media--embedded{{/embedded}}">
               <video src="{{url}}" controls preload="metadata"{{#hasDimensions}} width="{{width}}" height="{{height}}"{{/hasDimensions}}></video>
             </div>
             {{/isVideo}}

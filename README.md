@@ -8,10 +8,11 @@ Lightweight, customizable and easy to use.
 
 ## Features
 
-- Generate full HTML transcripts
+- Generate full HTML transcripts with Discord-like UI
 - Locale & timezone support
 - Custom Mustache template support
-- Fast message fetching
+- Fast message fetching with message grouping
+- Media embedding — store images, videos and audio as base64 for CDN-free HTML files
 - Built for Discord.Js
 - TypeScript support
 
@@ -54,6 +55,7 @@ const transcript = await createTranscript(channel, {
   locale: 'pt-BR',
   timezone: 'America/Sao_Paulo',
   limit: -1, // fetch all messages
+  embedMedia: true, // embed images as base64 (self-contained HTML)
 })
 ```
 
@@ -61,21 +63,59 @@ const transcript = await createTranscript(channel, {
 
 ## Options
 
-| Option     | Type      | Default | Description |
-|------------|-----------|----------|-------------|
-| `limit`    | number    | 100      | Number of messages to fetch (-1 = all) |
-| `guildName`| string    | —        | Guild name displayed in transcript |
-| `locale`   | string    | en-US    | Date formatting locale |
-| `timezone` | string    | UTC      | Timezone for timestamps |
+| Option       | Type      | Default      | Description |
+|--------------|-----------|--------------|-------------|
+| `limit`      | number    | 100          | Number of messages to fetch (-1 = all) |
+| `guildName`  | string    | —            | Guild name displayed in transcript |
+| `locale`     | string    | en-US        | Date formatting locale |
+| `timezone`   | string    | UTC          | Timezone for timestamps |
+| `returnType` | string    | "string"     | Return type: "string" or "buffer" |
+| `embedMedia` | boolean   | false        | Embed images, videos and audio as base64 data URIs (self-contained HTML) |
+| `maxFileSize`| number    | 26214400     | Max HTML file size in bytes (25 MB). Only used when `embedMedia` is true |
 
 ### Return Value
-
 
 ```ts
 {
   fileName: string
-  html: string
+  html: string | Buffer
 }
+```
+
+---
+
+## Media Embedding
+
+When `embedMedia: true` is enabled, the library will:
+
+1. Fetch each media attachment from Discord's CDN
+2. Convert it to a base64 data URI
+3. Embed it directly in the HTML file
+
+This makes the HTML file **self-contained** — it won't depend on Discord CDN URLs that expire.
+
+### Supported Media Types
+
+| Type | Extensions | Per-File Limit |
+|------|-----------|----------------|
+| Images | png, jpg, gif, webp, bmp, svg, avif | 30% of budget |
+| Videos | mp4, webm, mov, mkv, avi, m4v | 15% of budget |
+| Audio | mp3, wav, ogg, flac, m4a, aac, opus | 10% of budget |
+
+### Size Limits
+
+Discord has a **25 MB** file upload limit. The embedding algorithm uses an **80% safety margin** (20 MB target) to ensure the final HTML can be sent by any user.
+
+- **Embedded**: Media that fits within the per-file and total budget
+- **Skipped**: Files that would exceed limits stay as CDN links
+- **Graceful fallback**: If a file can't be fetched, it stays as a CDN link
+
+```js
+// Embed all media, respecting Discord's 25 MB limit
+const transcript = await createTranscript(channel, {
+  embedMedia: true,
+  maxFileSize: 25 * 1024 * 1024, // optional, defaults to 25 MB
+})
 ```
 
 ---

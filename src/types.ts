@@ -6,6 +6,8 @@ export interface TranscriptOptions {
 	timezone?: string
 	limit?: number
 	returnType?: 'string' | 'buffer'
+	embedMedia?: boolean
+	maxFileSize?: number
 }
 
 export interface TranscriptResult {

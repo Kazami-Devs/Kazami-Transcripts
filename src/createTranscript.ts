@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import type { Message, TextBasedChannel } from 'discord.js'
 import Mustache from 'mustache'
+import { embedMedia } from './embedMedia'
 import { mapMessage, mapReplyPreview } from './mapMessage'
 import type { TranscriptOptions, TranscriptResult } from './types'
 
@@ -20,6 +21,8 @@ export async function createTranscript(
 		timezone = 'UTC',
 		limit = 100,
 		returnType = 'string',
+		embedMedia: shouldEmbedMedia = false,
+		maxFileSize = 25 * 1024 * 1024,
 	} = options
 	const fileName = `transcript-${channel.name}.html`
 
@@ -176,6 +179,11 @@ export async function createTranscript(
 		})
 	}
 	mappedMessages = enrichedMessages
+
+	if (shouldEmbedMedia) {
+		const embedResult = await embedMedia(mappedMessages, maxFileSize)
+		mappedMessages = embedResult.messages
+	}
 
 	const nonSystemMessages = mappedMessages.filter((msg) => !msg.isSystemMessage)
 	const messageCount = nonSystemMessages.length

@@ -228,19 +228,21 @@ function getSystemMessageText(message: Message): string | null {
 	const author = escapeHtml(message.author.username)
 
 	switch (message.type) {
-		case MessageType.RecipientAdd:
-			if (message.mentions.users.size > 0) {
-				const addedUser = escapeHtml(message.mentions.users.first()?.username)
-				return `${author} added ${addedUser} to the thread.`
+		case MessageType.RecipientAdd: {
+			const addedUser = message.mentions.users.first()
+			if (addedUser) {
+				return `${author} added ${escapeHtml(addedUser.username)} to the thread.`
 			}
 			return `${author} added someone to the thread.`
+		}
 
-		case MessageType.RecipientRemove:
-			if (message.mentions.users.size > 0) {
-				const removedUser = escapeHtml(message.mentions.users.first()?.username)
-				return `${author} removed ${removedUser} from the thread.`
+		case MessageType.RecipientRemove: {
+			const removedUser = message.mentions.users.first()
+			if (removedUser) {
+				return `${author} removed ${escapeHtml(removedUser.username)} from the thread.`
 			}
 			return `${author} removed someone from the thread.`
+		}
 
 		case MessageType.Call:
 			return `${author} started a call.`

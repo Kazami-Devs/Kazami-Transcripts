@@ -8,6 +8,12 @@ import type { TranscriptOptions, TranscriptResult } from './types'
 
 const template = fs.readFileSync(path.join(__dirname, 'assets', 'transcript.md.mustache'), 'utf-8')
 
+function getRequiredMessage(map: Map<string, Message>, id: string): Message {
+	const message = map.get(id)
+	if (!message) throw new Error(`Message with id ${id} not found in messagesById map`)
+	return message
+}
+
 export async function createTranscript(
 	channel: TextBasedChannel,
 
@@ -104,17 +110,17 @@ export async function createTranscript(
 	for (let index = 0; index < mappedMessages.length; index++) {
 		const msg = mappedMessages[index]
 		const prev = index > 0 ? enrichedMessages[index - 1] : null
-		const raw = messagesById.get(msg.messageId)
+		const raw = getRequiredMessage(messagesById, msg.messageId)
 		const rawPrev = prev ? messagesById.get(prev.messageId) : null
 
 		const showDateDivider = !prev || prev.dateKey !== msg.dateKey
-		const dateDividerLabel = showDateDivider ? formatDateLong(raw?.createdAt) : null
+		const dateDividerLabel = showDateDivider ? formatDateLong(raw.createdAt) : null
 
 		let showHeader = true
 		let isCompact = false
 		if (!msg.isSystemMessage && prev && !prev.isSystemMessage) {
 			const sameAuthor = prev.author === msg.author
-			const timeDiff = raw?.createdAt.getTime() - (rawPrev?.createdAt.getTime() ?? 0)
+			const timeDiff = raw.createdAt.getTime() - (rawPrev?.createdAt.getTime() ?? 0)
 			const canGroup = sameAuthor && timeDiff <= GROUP_MS && !prev.isCommand && !msg.isCommand
 			if (canGroup) {
 				showHeader = false
@@ -145,7 +151,7 @@ export async function createTranscript(
 			commandUserColor = prev.commandUserColor
 		}
 
-		const refId = raw?.reference?.messageId
+		const refId = raw.reference?.messageId
 		const refMessage = refId ? messagesById.get(refId) : undefined
 		const replyTo = refMessage && !showInteraction ? mapReplyPreview(refMessage) : null
 
@@ -185,10 +191,10 @@ export async function createTranscript(
 	const firstMapped = nonSystemMessages[0]
 	const lastMapped = nonSystemMessages.at(-1)
 	const firstMessageAt = firstMapped
-		? formatDate(messagesById.get(firstMapped.messageId)?.createdAt)
+		? formatDate(getRequiredMessage(messagesById, firstMapped.messageId).createdAt)
 		: null
 	const lastMessageAt = lastMapped
-		? formatDate(messagesById.get(lastMapped.messageId)?.createdAt)
+		? formatDate(getRequiredMessage(messagesById, lastMapped.messageId).createdAt)
 		: null
 
 	const guild = channel.guild

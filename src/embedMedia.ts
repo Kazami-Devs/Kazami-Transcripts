@@ -24,6 +24,7 @@ const MIME_TYPES: Record<string, string> = {
 }
 
 interface MappedAttachment {
+	[x: string]: any
 	name: string
 	url: string
 	size: number

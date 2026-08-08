@@ -17,8 +17,7 @@ function getInteractionInfo(message: Message): InteractionInfo | null {
 			commandName: message.interaction.commandName,
 			commandUser: user.username,
 			commandUserAvatar: user.displayAvatarURL({ extension: 'png', size: 32 }),
-			commandUserColor:
-				memberColor && memberColor !== '#000000' ? memberColor : null,
+			commandUserColor: memberColor && memberColor !== '#000000' ? memberColor : null,
 		}
 	}
 
@@ -48,8 +47,7 @@ function getInteractionInfo(message: Message): InteractionInfo | null {
 			commandName: meta.name,
 			commandUser: user.username,
 			commandUserAvatar: avatarUrl,
-			commandUserColor:
-				memberColor && memberColor !== '#000000' ? memberColor : null,
+			commandUserColor: memberColor && memberColor !== '#000000' ? memberColor : null,
 		}
 	}
 
@@ -127,14 +125,11 @@ const IMAGE_URL_PATTERN =
 	/https?:\/\/[^\s<>"']+\.(?:png|jpe?g|gif|webp|bmp|avif|svg)(?:\?[^\s<>"']*)?/i
 
 function formatInlineImages(text: string): string {
-	text = text.replace(
-		/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g,
-		(_match, alt, url) => {
-			const safeAlt = escapeHtml(alt || 'Image')
-			const safeUrl = escapeHtml(url)
-			return `<span class="dc-media dc-media--image dc-media--external"><a href="${safeUrl}" target="_blank" rel="noopener noreferrer"><img src="${safeUrl}" alt="${safeAlt}" loading="lazy" referrerpolicy="no-referrer"></a></span>`
-		},
-	)
+	text = text.replace(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g, (_match, alt, url) => {
+		const safeAlt = escapeHtml(alt || 'Image')
+		const safeUrl = escapeHtml(url)
+		return `<span class="dc-media dc-media--image dc-media--external"><a href="${safeUrl}" target="_blank" rel="noopener noreferrer"><img src="${safeUrl}" alt="${safeAlt}" loading="lazy" referrerpolicy="no-referrer"></a></span>`
+	})
 
 	return text.replace(
 		/(?<!href="|src="|">)(https?:\/\/[^\s<>"']+\.(?:png|jpe?g|gif|webp|bmp|avif|svg)(?:\?[^\s<>"']*)?)/gi,
@@ -179,21 +174,18 @@ function formatDiscordMarkdown(text: string): string {
 	text = text.replace(/^###\s(.+)$/gm, '<h3 class="dc-header-3">$1</h3>')
 	text = text.replace(/^-#\s(.+)$/gm, '<div class="dc-list-item-small">$1</div>')
 	text = text.replace(/^-\s(.+)$/gm, '<div class="dc-list-item">• $1</div>')
-	text = text.replace(/&lt;t:(\d+)(?::([tTdDfFR]))?\&gt;/g, (match, timestamp, format) => {
-		const date = new Date(parseInt(timestamp) * 1000)
+	text = text.replace(/&lt;t:(\d+)(?::([tTdDfFR]))?&gt;/g, (_match, timestamp, _format) => {
+		const date = new Date(parseInt(timestamp, 10) * 1000)
 		return `<span class="dc-timestamp">${date.toLocaleString()}</span>`
 	})
 	text = text.replace(
 		/\[([^\]]+)]\((https?:\/\/[^\s)]+)\)/g,
 		'<a href="$2" class="dc-link" target="_blank" rel="noopener noreferrer">$1</a>',
 	)
-	text = text.replace(
-		/(?<!href="|src="|">)(https?:\/\/[^\s<]+)/g,
-		(url) => {
-			if (IMAGE_URL_PATTERN.test(url)) return url
-			return `<a href="${url}" class="dc-link" target="_blank" rel="noopener noreferrer">${url}</a>`
-		},
-	)
+	text = text.replace(/(?<!href="|src="|">)(https?:\/\/[^\s<]+)/g, (url) => {
+		if (IMAGE_URL_PATTERN.test(url)) return url
+		return `<a href="${url}" class="dc-link" target="_blank" rel="noopener noreferrer">${url}</a>`
+	})
 
 	text = text.replace(
 		new RegExp(`${MARKDOWN_PLACEHOLDER}(\\d+)${MARKDOWN_PLACEHOLDER}`, 'g'),
@@ -238,14 +230,14 @@ function getSystemMessageText(message: Message): string | null {
 	switch (message.type) {
 		case MessageType.RecipientAdd:
 			if (message.mentions.users.size > 0) {
-				const addedUser = escapeHtml(message.mentions.users.first()!.username)
+				const addedUser = escapeHtml(message.mentions.users.first()?.username)
 				return `${author} added ${addedUser} to the thread.`
 			}
 			return `${author} added someone to the thread.`
 
 		case MessageType.RecipientRemove:
 			if (message.mentions.users.size > 0) {
-				const removedUser = escapeHtml(message.mentions.users.first()!.username)
+				const removedUser = escapeHtml(message.mentions.users.first()?.username)
 				return `${author} removed ${removedUser} from the thread.`
 			}
 			return `${author} removed someone from the thread.`
@@ -397,10 +389,7 @@ export function mapMessage(
 	const embeds = message.embeds.map((embed: Embed) => {
 		const hasFields = (embed.fields?.length ?? 0) > 0
 		const hasText = Boolean(
-			embed.title ||
-				embed.description ||
-				embed.author?.name ||
-				embed.footer?.text,
+			embed.title || embed.description || embed.author?.name || embed.footer?.text,
 		)
 		const embedImage = embed.image?.url ?? null
 		const embedThumbnail = embed.thumbnail?.url ?? null
@@ -433,11 +422,11 @@ export function mapMessage(
 		const isImage = isImageAttachment(name, contentType)
 		const isVideo = isVideoAttachment(name, contentType)
 		const isAudio = isAudioAttachment(name, contentType)
-		const isGif =
-			contentType === 'image/gif' || name.toLowerCase().endsWith('.gif')
+		const isGif = contentType === 'image/gif' || name.toLowerCase().endsWith('.gif')
 		const isFile = !isImage && !isVideo && !isAudio
 		const ext = getFileExtension(name).toLowerCase()
-		const mimeType = (contentType?.split(';')[0].trim()) ?? MIME_TYPES[ext] ?? 'application/octet-stream'
+		const mimeType =
+			contentType?.split(';')[0].trim() ?? MIME_TYPES[ext] ?? 'application/octet-stream'
 
 		return {
 			name,
@@ -517,8 +506,7 @@ export function mapMessage(
 	const isSystemMessage = systemMessageText !== null
 
 	const memberColor = message.member?.displayHexColor
-	const authorColor =
-		memberColor && memberColor !== '#000000' ? memberColor : null
+	const authorColor = memberColor && memberColor !== '#000000' ? memberColor : null
 
 	const isBot = message.author.bot
 	const isApp = Boolean(message.author.bot && message.applicationId)

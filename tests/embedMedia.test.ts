@@ -37,7 +37,9 @@ describe('embedMedia', () => {
 		const bytes = new Uint8Array([1, 2, 3, 4])
 		vi.stubGlobal(
 			'fetch',
-			vi.fn(async () => mockFetchResponse(bytes, { 'content-length': '4', 'content-type': 'image/png' })),
+			vi.fn(async () =>
+				mockFetchResponse(bytes, { 'content-length': '4', 'content-type': 'image/png' }),
+			),
 		)
 
 		const messages = [{ attachments: [makeAttachment()] }]
@@ -93,7 +95,13 @@ describe('embedMedia', () => {
 
 		const maxFileSize = 100 // target = 80, per-file image cap = 24
 		const messages = [
-			{ attachments: [makeAttachment({ size: 20 }), makeAttachment({ size: 20 }), makeAttachment({ size: 20 })] },
+			{
+				attachments: [
+					makeAttachment({ size: 20 }),
+					makeAttachment({ size: 20 }),
+					makeAttachment({ size: 20 }),
+				],
+			},
 		]
 
 		const result = await embedMedia(messages as any, { maxFileSize })
@@ -108,7 +116,11 @@ describe('embedMedia', () => {
 	it('leaves the attachment untouched and counts it skipped when fetch fails', async () => {
 		vi.stubGlobal(
 			'fetch',
-			vi.fn(async () => ({ ok: false, headers: { get: () => null }, arrayBuffer: async () => new ArrayBuffer(0) })),
+			vi.fn(async () => ({
+				ok: false,
+				headers: { get: () => null },
+				arrayBuffer: async () => new ArrayBuffer(0),
+			})),
 		)
 
 		const original = makeAttachment()

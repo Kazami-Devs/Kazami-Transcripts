@@ -11,7 +11,7 @@
 		"build": "tsc && copyfiles -u 1 \"src/**/*.{mustache,md}\" dist",
 		"dev": "tsc -w",
 		"typecheck": "tsc --noEmit",
-		"lint": "biome check .",
+		"lint": "biome check ./src",
 		"test": "vitest run"
 	},
 	"keywords": [

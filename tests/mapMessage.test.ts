@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest'
 import { MessageType } from 'discord.js'
+import { describe, expect, it } from 'vitest'
 import { mapMessage, mapReplyPreview } from '../src/mapMessage'
-import { fakeGuild, fakeMessage, fakeUser } from './helpers'
+import { fakeGuild, fakeMessage, fakeUser } from './Helpers'
 
 const formatDate = (date: Date) => date.toISOString()
 const formatTime = (date: Date) => date.toISOString()
@@ -67,7 +67,9 @@ describe('mapMessage - mentions', () => {
 		const message = fakeMessage({
 			content: '<@123>',
 			guild,
-			mentions: { users: { get: (id: string) => (id === '123' ? fakeUser({ username: 'ana' }) : undefined) } },
+			mentions: {
+				users: { get: (id: string) => (id === '123' ? fakeUser({ username: 'ana' }) : undefined) },
+			},
 		})
 		const result = mapMessage(message as any, formatDate, formatTime)
 		expect(result.content).toContain('@ana')
@@ -85,7 +87,11 @@ describe('mapMessage - mentions', () => {
 
 	it('resolves a role mention using the guild role cache', () => {
 		const guild = fakeGuild({
-			roles: { cache: { get: (id: string) => (id === '55' ? { name: 'Admins', color: 0x5865f2 } : undefined) } },
+			roles: {
+				cache: {
+					get: (id: string) => (id === '55' ? { name: 'Admins', color: 0x5865f2 } : undefined),
+				},
+			},
 		})
 		const message = fakeMessage({ content: '<@&55>', guild })
 		const result = mapMessage(message as any, formatDate, formatTime)
@@ -106,7 +112,13 @@ describe('mapMessage - attachments', () => {
 	it('classifies an image attachment by extension', () => {
 		const message = fakeMessage({
 			attachments: [
-				{ name: 'photo.png', url: 'https://cdn.discordapp.com/photo.png', size: 2048, proxyURL: null, spoiler: false },
+				{
+					name: 'photo.png',
+					url: 'https://cdn.discordapp.com/photo.png',
+					size: 2048,
+					proxyURL: null,
+					spoiler: false,
+				},
 			],
 		})
 		const result = mapMessage(message as any, formatDate, formatTime)
@@ -136,7 +148,13 @@ describe('mapMessage - attachments', () => {
 	it('falls back to "isFile" for unrecognized attachment types', () => {
 		const message = fakeMessage({
 			attachments: [
-				{ name: 'notes.txt', url: 'https://cdn.discordapp.com/notes.txt', size: 100, proxyURL: null, spoiler: false },
+				{
+					name: 'notes.txt',
+					url: 'https://cdn.discordapp.com/notes.txt',
+					size: 100,
+					proxyURL: null,
+					spoiler: false,
+				},
 			],
 		})
 		const result = mapMessage(message as any, formatDate, formatTime)

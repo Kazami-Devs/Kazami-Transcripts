@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createTranscript } from '../src/createTranscript'
-import { fakeChannel, fakeMessage } from './helpers'
+import { fakeChannel, fakeMessage } from './Helpers'
 
 describe('createTranscript', () => {
 	it('throws when given a DM-based channel', async () => {
@@ -23,8 +23,12 @@ describe('createTranscript', () => {
 	})
 
 	it('paginates using `before` until Discord returns an empty page (limit: -1)', async () => {
-		const pageOne = Array.from({ length: 100 }, (_, i) => fakeMessage({ id: `a${i}`, content: `first ${i}` }))
-		const pageTwo = Array.from({ length: 30 }, (_, i) => fakeMessage({ id: `b${i}`, content: `second ${i}` }))
+		const pageOne = Array.from({ length: 100 }, (_, i) =>
+			fakeMessage({ id: `a${i}`, content: `first ${i}` }),
+		)
+		const pageTwo = Array.from({ length: 30 }, (_, i) =>
+			fakeMessage({ id: `b${i}`, content: `second ${i}` }),
+		)
 		const channel = fakeChannel({ pages: [pageOne, pageTwo, []] })
 
 		const result = await createTranscript(channel as any, { limit: -1 })
@@ -49,8 +53,16 @@ describe('createTranscript', () => {
 		const channel = fakeChannel({
 			pages: [
 				[
-					fakeMessage({ id: '1', content: 'hey', author: { id: 'u1', username: 'alice', bot: false, displayAvatarURL: () => 'a' } }),
-					fakeMessage({ id: '2', content: 'yo', author: { id: 'u2', username: 'bob', bot: false, displayAvatarURL: () => 'b' } }),
+					fakeMessage({
+						id: '1',
+						content: 'hey',
+						author: { id: 'u1', username: 'alice', bot: false, displayAvatarURL: () => 'a' },
+					}),
+					fakeMessage({
+						id: '2',
+						content: 'yo',
+						author: { id: 'u2', username: 'bob', bot: false, displayAvatarURL: () => 'b' },
+					}),
 				],
 			],
 		})

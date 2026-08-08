@@ -22,6 +22,7 @@ export async function createTranscript(
 		limit = 100,
 		returnType = 'string',
 		embedMedia: shouldEmbedMedia = false,
+		embedTypes,
 		maxFileSize = 25 * 1024 * 1024,
 	} = options
 	const fileName = `transcript-${channel.name}.html`
@@ -181,7 +182,7 @@ export async function createTranscript(
 	mappedMessages = enrichedMessages
 
 	if (shouldEmbedMedia) {
-		const embedResult = await embedMedia(mappedMessages, maxFileSize)
+		const embedResult = await embedMedia(mappedMessages, { maxFileSize, embedTypes })
 		mappedMessages = embedResult.messages
 	}
 

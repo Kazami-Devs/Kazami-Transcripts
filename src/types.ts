@@ -1,5 +1,7 @@
 import type { TextBasedChannel } from 'discord.js'
 
+export type MediaType = 'image' | 'video'
+
 export interface TranscriptOptions {
 	guildName?: string
 	locale?: string
@@ -7,6 +9,7 @@ export interface TranscriptOptions {
 	limit?: number
 	returnType?: 'string' | 'buffer'
 	embedMedia?: boolean
+	embedTypes?: MediaType[]
 	maxFileSize?: number
 }
 

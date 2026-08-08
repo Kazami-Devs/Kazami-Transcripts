@@ -93,6 +93,23 @@ function isAudioAttachment(name: string, contentType?: string | null): boolean {
 	return /\.(mp3|wav|ogg|flac|m4a|aac|opus)$/i.test(name)
 }
 
+const MIME_TYPES: Record<string, string> = {
+	png: 'image/png',
+	jpg: 'image/jpeg',
+	jpeg: 'image/jpeg',
+	gif: 'image/gif',
+	webp: 'image/webp',
+	bmp: 'image/bmp',
+	svg: 'image/svg+xml',
+	avif: 'image/avif',
+	mp4: 'video/mp4',
+	webm: 'video/webm',
+	mov: 'video/quicktime',
+	mkv: 'video/x-matroska',
+	avi: 'video/x-msvideo',
+	m4v: 'video/x-m4v',
+}
+
 const MARKDOWN_PLACEHOLDER = '\uE000MD'
 
 function formatDiscordEmojis(text: string): string {
@@ -419,6 +436,8 @@ export function mapMessage(
 		const isGif =
 			contentType === 'image/gif' || name.toLowerCase().endsWith('.gif')
 		const isFile = !isImage && !isVideo && !isAudio
+		const ext = getFileExtension(name).toLowerCase()
+		const mimeType = (contentType?.split(';')[0].trim()) ?? MIME_TYPES[ext] ?? 'application/octet-stream'
 
 		return {
 			name,
@@ -426,6 +445,7 @@ export function mapMessage(
 			size: attachment.size,
 			sizeFormatted: formatFileSize(attachment.size),
 			extension: getFileExtension(name),
+			mimeType,
 			width: attachment.width,
 			height: attachment.height,
 			hasDimensions: Boolean(attachment.width && attachment.height),

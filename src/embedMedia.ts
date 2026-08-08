@@ -4,8 +4,24 @@ const SAFETY_MARGIN = 0.8
 const PER_FILE_LIMITS = {
 	image: 0.3,
 	video: 0.15,
-	audio: 0.1,
 } as const
+
+const MIME_TYPES: Record<string, string> = {
+	png: 'image/png',
+	jpg: 'image/jpeg',
+	jpeg: 'image/jpeg',
+	gif: 'image/gif',
+	webp: 'image/webp',
+	bmp: 'image/bmp',
+	svg: 'image/svg+xml',
+	avif: 'image/avif',
+	mp4: 'video/mp4',
+	webm: 'video/webm',
+	mov: 'video/quicktime',
+	mkv: 'video/x-matroska',
+	avi: 'video/x-msvideo',
+	m4v: 'video/x-m4v',
+}
 
 interface MappedAttachment {
 	name: string
@@ -13,6 +29,7 @@ interface MappedAttachment {
 	size: number
 	sizeFormatted: string
 	extension: string
+	mimeType: string
 	width?: number | null
 	height?: number | null
 	hasDimensions: boolean
@@ -24,11 +41,31 @@ interface MappedAttachment {
 	isSpoiler: boolean
 }
 
+type EmbedType = 'image' | 'video'
+
+interface EmbedOptions {
+	maxFileSize?: number
+	embedTypes?: EmbedType[]
+}
+
 interface EmbedResult<T> {
 	messages: T[]
 	totalEmbeddedSize: number
 	embeddedCount: number
 	skippedCount: number
+}
+
+function getMimeType(attachment: MappedAttachment, serverContentType: string | null): string {
+	const ext = attachment.extension.toLowerCase()
+	const fromExt = MIME_TYPES[ext]
+	const fromServer = serverContentType?.split(';')[0].trim()
+
+	if (fromServer && fromServer !== 'application/octet-stream') {
+		return fromServer
+	}
+	if (fromExt) return fromExt
+	if (fromServer) return fromServer
+	return 'application/octet-stream'
 }
 
 async function getContentLength(url: string): Promise<number | null> {
@@ -41,25 +78,28 @@ async function getContentLength(url: string): Promise<number | null> {
 	}
 }
 
-async function fetchAsBase64(url: string): Promise<{ base64: string; mimeType: string } | null> {
+async function fetchAsDataUri(
+	attachment: MappedAttachment,
+): Promise<{ dataUri: string; mimeType: string; size: number } | null> {
 	try {
-		const response = await fetch(url)
+		const response = await fetch(attachment.url)
 		if (!response.ok) return null
 
-		const contentType = response.headers.get('content-type') ?? 'application/octet-stream'
+		const serverContentType = response.headers.get('content-type')
+		const mimeType = getMimeType(attachment, serverContentType)
 		const buffer = await response.arrayBuffer()
 		const base64 = Buffer.from(buffer).toString('base64')
+		const dataUri = `data:${mimeType};base64,${base64}`
 
-		return { base64, mimeType: contentType.split(';')[0].trim() }
+		return { dataUri, mimeType, size: buffer.byteLength }
 	} catch {
 		return null
 	}
 }
 
-function getMediaType(attachment: MappedAttachment): 'image' | 'video' | 'audio' | null {
+function getMediaType(attachment: MappedAttachment): 'image' | 'video' | null {
 	if (attachment.isImage) return 'image'
 	if (attachment.isVideo) return 'video'
-	if (attachment.isAudio) return 'audio'
 	return null
 }
 
@@ -67,9 +107,11 @@ function canEmbed(
 	attachment: MappedAttachment,
 	currentSize: number,
 	targetSize: number,
+	embedTypes: EmbedType[],
 ): boolean {
 	const mediaType = getMediaType(attachment)
 	if (!mediaType) return false
+	if (!embedTypes.includes(mediaType)) return false
 
 	if (currentSize >= targetSize) return false
 
@@ -82,8 +124,9 @@ function canEmbed(
 
 export async function embedMedia<T extends { attachments: MappedAttachment[]; [key: string]: any }>(
 	messages: T[],
-	maxFileSize: number = DISCORD_FILE_LIMIT,
+	options: EmbedOptions = {},
 ): Promise<EmbedResult<T>> {
+	const { maxFileSize = DISCORD_FILE_LIMIT, embedTypes = ['image', 'video'] } = options
 	const targetSize = maxFileSize * SAFETY_MARGIN
 	let accumulatedSize = 0
 	let embeddedCount = 0
@@ -95,7 +138,7 @@ export async function embedMedia<T extends { attachments: MappedAttachment[]; [k
 
 			const processedAttachments = await Promise.all(
 				msg.attachments.map(async (attachment) => {
-					if (!canEmbed(attachment, accumulatedSize, targetSize)) {
+					if (!canEmbed(attachment, accumulatedSize, targetSize, embedTypes)) {
 						skippedCount++
 						return attachment
 					}
@@ -108,20 +151,19 @@ export async function embedMedia<T extends { attachments: MappedAttachment[]; [k
 						}
 					}
 
-					const result = await fetchAsBase64(attachment.url)
+					const result = await fetchAsDataUri(attachment)
 					if (!result) {
 						skippedCount++
 						return attachment
 					}
 
-					const dataUri = `data:${result.mimeType};base64,${result.base64}`
-					const embeddedSize = contentLength ?? Math.ceil(result.base64.length * 0.75)
-					accumulatedSize += embeddedSize
+					accumulatedSize += result.size
 					embeddedCount++
 
 					return {
 						...attachment,
-						url: dataUri,
+						url: result.dataUri,
+						mimeType: result.mimeType,
 						embedded: true,
 					}
 				}),

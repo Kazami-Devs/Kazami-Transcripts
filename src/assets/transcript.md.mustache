@@ -1272,10 +1272,9 @@
       inline-size: 100%;
       block-size: 2rem;
       accent-color: var(--dc-blurple);
-    }
-    
-    .dc-file-audio-player::-webkit-media-controls-panel {
+      border-radius: 0.25rem;
       background: var(--dc-bg-tertiary);
+      padding: 0.25rem;
     }
     
     .sticker-container {
@@ -1586,7 +1585,7 @@
             </div>
             {{/isVideo}}
             {{#isAudio}}
-            <div class="dc-file dc-file--audio">
+            <div class="dc-file dc-file--audio{{#embedded}} dc-media--embedded{{/embedded}}">
               <div class="dc-file-row">
                 <div class="dc-file-icon dc-file-icon--audio"></div>
                 <div class="dc-file-body">
@@ -1594,7 +1593,9 @@
                   <span class="dc-file-meta">{{sizeFormatted}}</span>
                 </div>
               </div>
-              <audio class="dc-file-audio-player" src="{{url}}" controls preload="metadata"></audio>
+              <audio class="dc-file-audio-player" controls preload="auto">
+                <source src="{{url}}" type="{{mimeType}}">
+              </audio>
             </div>
             {{/isAudio}}
             {{#isFile}}

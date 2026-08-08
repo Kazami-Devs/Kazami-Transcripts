@@ -12,7 +12,7 @@ Lightweight, customizable and easy to use.
 - Locale & timezone support
 - Custom Mustache template support
 - Fast message fetching with message grouping
-- Media embedding — store images, videos and audio as base64 for CDN-free HTML files
+- Media embedding — store images and videos as base64 for CDN-free HTML files
 - Built for Discord.Js
 - TypeScript support
 
@@ -70,7 +70,8 @@ const transcript = await createTranscript(channel, {
 | `locale`     | string    | en-US        | Date formatting locale |
 | `timezone`   | string    | UTC          | Timezone for timestamps |
 | `returnType` | string    | "string"     | Return type: "string" or "buffer" |
-| `embedMedia` | boolean   | false        | Embed images, videos and audio as base64 data URIs (self-contained HTML) |
+| `embedMedia` | boolean   | false        | Embed images and videos as base64 data URIs (self-contained HTML) |
+| `embedTypes` | string[]  | ["image","video"] | Media types to embed: `"image"`, `"video"`, or both. Only used when `embedMedia` is true |
 | `maxFileSize`| number    | 26214400     | Max HTML file size in bytes (25 MB). Only used when `embedMedia` is true |
 
 ### Return Value
@@ -100,7 +101,6 @@ This makes the HTML file **self-contained** — it won't depend on Discord CDN U
 |------|-----------|----------------|
 | Images | png, jpg, gif, webp, bmp, svg, avif | 30% of budget |
 | Videos | mp4, webm, mov, mkv, avi, m4v | 15% of budget |
-| Audio | mp3, wav, ogg, flac, m4a, aac, opus | 10% of budget |
 
 ### Size Limits
 
@@ -115,6 +115,18 @@ Discord has a **25 MB** file upload limit. The embedding algorithm uses an **80%
 const transcript = await createTranscript(channel, {
   embedMedia: true,
   maxFileSize: 25 * 1024 * 1024, // optional, defaults to 25 MB
+})
+
+// Embed only images (skip videos)
+const transcript = await createTranscript(channel, {
+  embedMedia: true,
+  embedTypes: ['image'],
+})
+
+// Embed only videos (skip images)
+const transcript = await createTranscript(channel, {
+  embedMedia: true,
+  embedTypes: ['video'],
 })
 ```
 

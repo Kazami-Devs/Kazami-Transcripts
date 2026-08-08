@@ -1,0 +1,54 @@
+name: ci
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    permissions:
+      # allow the release step to comment on
+      # issues, pull requests, and write to the repo
+      contents: write
+      issues: write
+      pull-requests: write
+      # Required for OIDC to let NPM registry know
+      # that this workflow is trusted
+      id-token: write
+
+    steps:
+      - name: Checkout 🛎
+        # https://github.com/actions/checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node 🟢
+        # important: the default Node version is v18
+        # which gives us an auth error trying to release
+        # so install v24 explicitly
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          # do NOT set registry-url here — it writes an _authToken
+          # line to .npmrc that conflicts with OIDC trusted publishing
+
+      - name: Ensure npm supports OIDC (11.5.1+) 🔐
+        run: npm install -g npm@latest
+
+      - name: Install dependencies 📦
+        run: npm ci
+
+      - name: Run tests 🧪
+        # https://github.com/cypress-io/github-action
+        uses: cypress-io/github-action@v6
+
+      - name: Check type declarations 🔎
+        run: npm run typecheck
+
+      - name: Build 🏗
+        run: npm run build
+
+      - name: Semantic Release 🚀
+        # https://github.com/cycjimmy/semantic-release-action
+        uses: cycjimmy/semantic-release-action@v6
+        with:
+          branch: main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

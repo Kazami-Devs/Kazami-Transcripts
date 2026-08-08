@@ -2,51 +2,95 @@ name: ci
 on: push
 
 jobs:
+  prepare:
+    name: test / prepare
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Cache node_modules 📦
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+  lint-types:
+    needs: prepare
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - run: npm run typecheck
+
+  print-test-names:
+    needs: prepare
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: set-matrix
+        run: |
+          specs=$(find cypress/e2e -type f \( -name "*.cy.ts" -o -name "*.cy.js" \) | jq -R -s -c 'split("\n")[:-1]')
+          echo "matrix=$specs" >> "$GITHUB_OUTPUT"
+
   test:
+    name: test
+    needs: [lint-types, print-test-names]
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        spec: ${{ fromJson(needs.print-test-names.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Run Cypress 🧪
+        uses: cypress-io/github-action@v6
+        with:
+          install: false
+          spec: ${{ matrix.spec }}
+
+  release:
+    name: release
+    needs: test
     runs-on: ubuntu-24.04
     permissions:
-      # allow the release step to comment on
-      # issues, pull requests, and write to the repo
       contents: write
       issues: write
       pull-requests: write
-      # Required for OIDC to let NPM registry know
-      # that this workflow is trusted
       id-token: write
-
     steps:
-      - name: Checkout 🛎
-        # https://github.com/actions/checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Node 🟢
-        # important: the default Node version is v18
-        # which gives us an auth error trying to release
-        # so install v24 explicitly
-        uses: actions/setup-node@v6
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
-          # do NOT set registry-url here — it writes an _authToken
-          # line to .npmrc that conflicts with OIDC trusted publishing
-
-      - name: Ensure npm supports OIDC (11.5.1+) 🔐
-        run: npm install -g npm@latest
-
-      - name: Install dependencies 📦
-        run: npm ci
-
-      - name: Run tests 🧪
-        # https://github.com/cypress-io/github-action
-        uses: cypress-io/github-action@v6
-
-      - name: Check type declarations 🔎
-        run: npm run typecheck
-
+      - uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - run: npm install -g npm@latest
       - name: Build 🏗
         run: npm run build
-
       - name: Semantic Release 🚀
-        # https://github.com/cycjimmy/semantic-release-action
         uses: cycjimmy/semantic-release-action@v6
         with:
           branch: main

@@ -44,6 +44,11 @@ jobs:
       - id: set-matrix
         run: |
           specs=$(find cypress/e2e -type f \( -name "*.cy.ts" -o -name "*.cy.js" \) | jq -R -s -c 'split("\n")[:-1]')
+          echo "Found specs: $specs"
+          if [ "$specs" = "[]" ]; then
+            echo "::error::No Cypress spec files found under cypress/e2e — check the path/pattern"
+            exit 1
+          fi
           echo "matrix=$specs" >> "$GITHUB_OUTPUT"
 
   test:

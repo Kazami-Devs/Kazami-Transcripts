@@ -9,7 +9,8 @@
 	],
 	"scripts": {
 		"build": "tsc && copyfiles -u 1 \"src/**/*.{mustache,md}\" dist",
-		"dev": "tsc -w"
+		"dev": "tsc -w",
+		"typecheck": "tsc --noEmit"
 	},
 	"keywords": [
 		"discord",

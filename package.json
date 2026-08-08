@@ -10,7 +10,9 @@
 	"scripts": {
 		"build": "tsc && copyfiles -u 1 \"src/**/*.{mustache,md}\" dist",
 		"dev": "tsc -w",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsc --noEmit",
+		"lint": "biome check .",
+		"test": "vitest run"
 	},
 	"keywords": [
 		"discord",
@@ -36,7 +38,8 @@
 		"@types/mustache": "^4.2.6",
 		"@types/node": "^25.3.0",
 		"copyfiles": "^2.4.1",
-		"typescript": "^5.9.3"
+		"typescript": "^5.9.3",
+		"vitest": "^4.1.10"
 	},
 	"dependencies": {
 		"mustache": "^4.2.0"

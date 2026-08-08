@@ -34,31 +34,9 @@ jobs:
           key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - run: npm run typecheck
 
-  print-test-names:
+  lint:
     needs: prepare
     runs-on: ubuntu-24.04
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - uses: actions/checkout@v6
-      - id: set-matrix
-        run: |
-          specs=$(find cypress/e2e -type f \( -name "*.cy.ts" -o -name "*.cy.js" \) | jq -R -s -c 'split("\n")[:-1]')
-          echo "Found specs: $specs"
-          if [ "$specs" = "[]" ]; then
-            echo "::error::No Cypress spec files found under cypress/e2e — check the path/pattern"
-            exit 1
-          fi
-          echo "matrix=$specs" >> "$GITHUB_OUTPUT"
-
-  test:
-    name: test
-    needs: [lint-types, print-test-names]
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        spec: ${{ fromJson(needs.print-test-names.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -68,15 +46,25 @@ jobs:
         with:
           path: node_modules
           key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-      - name: Run Cypress 🧪
-        uses: cypress-io/github-action@v6
+      - run: npm run lint
+
+  test:
+    needs: prepare
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
-          install: false
-          spec: ${{ matrix.spec }}
+          node-version: 24
+      - uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - run: npm test
 
   release:
     name: release
-    needs: test
+    needs: [lint-types, lint, test]
     runs-on: ubuntu-24.04
     permissions:
       contents: write
